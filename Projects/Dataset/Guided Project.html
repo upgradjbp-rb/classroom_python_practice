@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQL Masterclass | Brazilian E-Commerce End-to-End Analytics Project</title>
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --accent-bg: #ecfdf5;
+      --dark: #0f172a;
+      --slate: #334155;
+      --light-slate: #64748b;
+      --border: #e2e8f0;
+      --radius: 10px;
+      --highlight-bg: #fef08a;
+      --highlight-border: #ca8a04;
+      --matched-bg: #d1fae5;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
+    body { background-color: #0b0f19; color: var(--dark); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+    #progress-container { width: 100%; height: 5px; background: #1e293b; }
+    #progress-bar { height: 100%; width: 2%; background: linear-gradient(90deg, #34d399, #10b981); transition: width 0.3s ease; }
+    #presentation { flex: 1; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; padding: 12px; }
+    .slide {
+      position: absolute; width: 96%; max-width: 1180px; height: 88vh; background: #ffffff;
+      border-radius: var(--radius); box-shadow: 0 16px 40px rgba(0,0,0,0.45); padding: 20px 36px;
+      display: flex; flex-direction: column; opacity: 0; pointer-events: none;
+      transform: translateY(16px) scale(0.98); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto;
+    }
+    .slide.active { opacity: 1; pointer-events: all; transform: translateY(0) scale(1); z-index: 10; }
+    .slide-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #f1f5f9; padding-bottom: 6px; }
+    .topic-tag { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; color: var(--primary-dark); background: var(--accent-bg); padding: 2px 8px; border-radius: 4px; }
+    .slide-title { font-size: 1.35rem; font-weight: 800; color: #0f172a; line-height: 1.2; }
+    .slide-subtitle { font-size: 0.86rem; color: var(--light-slate); margin-top: 2px; }
+    .slide-body { flex: 1; display: flex; flex-direction: column; gap: 7px; justify-content: center; font-size: 0.86rem; line-height: 1.42; color: var(--slate); }
+    .analogy-card { background: #f8fafc; border-left: 4px solid var(--primary); padding: 8px 12px; border-radius: 0 var(--radius) var(--radius) 0; margin: 2px 0; }
+    .analogy-title { font-weight: 700; color: var(--primary-dark); margin-bottom: 2px; display: flex; align-items: center; gap: 6px; font-size: 0.83rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 2px 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .feature-box { border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; background: #ffffff; }
+    .feature-box h4 { color: #0f172a; margin-bottom: 2px; font-size: 0.88rem; }
+    table.data-table { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 0.75rem; }
+    table.data-table th, table.data-table td { border: 1px solid var(--border); padding: 4px 6px; text-align: left; }
+    table.data-table th { background-color: #f1f5f9; color: #0f172a; font-weight: 700; }
+    table.data-table tr:nth-child(even) { background-color: #f8fafc; }
+    .cell-hl { background-color: var(--highlight-bg) !important; font-weight: bold; border: 2px solid var(--highlight-border) !important; color: #854d0e !important; }
+    .col-hl { background-color: #ecfdf5 !important; font-weight: 600; border-left: 2px solid var(--primary) !important; border-right: 2px solid var(--primary) !important; }
+    .row-matched { background-color: var(--matched-bg) !important; }
+    .code-snippet { background: #0f172a; color: #93c5fd; padding: 7px 11px; border-radius: 6px; font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; line-height: 1.35; overflow-x: auto; }
+    .code-keyword { color: #f87171; font-weight: bold; }
+    .code-table { color: #86efac; }
+    .code-comment { color: #94a3b8; font-style: italic; }
+    .simulator-panel { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; margin-top: 2px; }
+    .sim-btn { background: #10b981; color: white; border: none; padding: 4px 9px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+    .sim-btn:hover { background: #059669; }
+    .sim-btn.student { background: #0284c7; }
+    .sim-btn.student:hover { background: #0369a1; }
+    .sim-reveal { display: none; margin-top: 4px; padding: 5px 8px; background: #ffffff; border-left: 3px solid #10b981; border-radius: 3px; font-size: 0.77rem; }
+    .bullet-list { list-style-type: none; display: flex; flex-direction: column; gap: 3px; }
+    .bullet-list li { position: relative; padding-left: 15px; }
+    .bullet-list li::before { content: "➔"; position: absolute; left: 0; color: var(--primary); font-weight: bold; font-size: 0.75rem; }
+    #controls { background: #111827; border-top: 1px solid #1f2937; padding: 6px 20px; display: flex; justify-content: space-between; align-items: center; color: #9ca3af; }
+    .nav-btn { background: #1f2937; color: #f9fafb; border: 1px solid #374151; padding: 4px 12px; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+    .nav-btn:hover { background: var(--primary); border-color: var(--primary); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    #counter { font-size: 0.8rem; font-weight: 600; }
+    .key-tip { font-size: 0.7rem; color: #6b7280; }
+  </style>
+</head>
+<body>
+
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <div id="presentation">
+
+    <!-- Slide 1 -->
+    <div class="slide active">
+      <div class="slide-header">
+        <span class="topic-tag">Capstone Portfolio Project</span>
+        <span class="slide-number">Slide 1 / 50</span>
+      </div>
+      <div class="slide-body" style="text-align:center; align-items:center;">
+        <h1 style="font-size: 2rem; color: #059669; margin-bottom: 4px;">Brazilian E-Commerce Multi-Table Analytics</h1>
+        <p style="font-size: 1.05rem; color: #334155; font-weight: 600;">An End-to-End Portfolio SQL Project: 14 Business Problems Solved</p>
+        <div style="margin-top: 10px; max-width: 820px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: left;">
+          <p style="font-size: 0.86rem; color: #475569;">
+            Welcome to the flagship enterprise portfolio project! Today we step into the operational reality of Brazil's largest marketplace network (Olist). Across 5 interconnected relational tables, we will formulate, optimize, and defend solutions to 14 essential business problems ranging from basic city counts to customer retention, moving averages, and YoY revenue expansion.
+          </p>
+        </div>
+        <p style="margin-top: 8px; font-weight: 600; color: #64748b;">Target Audience: Career Transitioners into Data Analytics</p>
+      </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Business Context</span>
+        <span class="slide-number">Slide 2 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">The Commercial Landscape: Brazilian E-Commerce</h2>
+        <p class="slide-subtitle">Understanding the business model behind the data</p>
+        <div class="grid-2">
+          <div class="feature-box">
+            <h4>The Marketplace Model</h4>
+            <p style="font-size:0.81rem; color:#475569;">Olist connects small merchants across Brazil directly to major e-commerce platforms. A customer orders a product online; independent sellers fulfill orders across multiple logistical zones.</p>
+          </div>
+          <div class="feature-box">
+            <h4>The Strategic Inquiries</h4>
+            <ul class="bullet-list" style="font-size:0.79rem;">
+              <li>Where are our core customer geographic concentrations?</li>
+              <li>How crucial are installment credit plans to cashflow conversion?</li>
+              <li>What is our true organic customer retention rate?</li>
+              <li>Who are our apex sellers and highest-value repeat shoppers?</li>
+            </ul>
+          </div>
+        </div>
+        <div class="analogy-card">
+          <div class="analogy-title">The Analytical Mindset</div>
+          <p>You are not merely answering SQL prompts; you are presenting an operational and financial performance audit to senior executives.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Relational Schema</span>
+        <span class="slide-number">Slide 3 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">The 5-Table Relational Schema Architecture</h2>
+        <p class="slide-subtitle">Understanding primary-foreign key linkages</p>
+        <table class="data-table">
+          <thead><tr><th>Table Name</th><th>Primary Key</th><th>Foreign Keys</th><th>Core Business Scope</th></tr></thead>
+          <tbody>
+            <tr><td><code>customers</code></td><td><code>customer_id</code></td><td>None</td><td>Customer location (City, State)</td></tr>
+            <tr><td><code>orders</code></td><td><code>order_id</code></td><td><code>customer_id</code></td><td>Order purchase timestamp and lifecycle status</td></tr>
+            <tr><td><code>order_items</code></td><td>(Composite)</td><td><code>order_id</code>, <code>product_id</code>, <code>seller_id</code></td><td>Individual line-item price, freight, and seller link</td></tr>
+            <tr><td><code>products</code></td><td><code>product_id</code></td><td>None</td><td>Merchandise catalog and category naming</td></tr>
+            <tr><td><code>payments</code></td><td>(Composite)</td><td><code>order_id</code></td><td>Payment method, installments, and payment value</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#059669; font-weight:600;">Every join in our 14 business queries connects along these validated primary-to-foreign key relationships.</p>
+      </div>
+    </div>
+
+    <!-- Slide 4 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Curriculum Map</span>
+        <span class="slide-number">Slide 4 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">The 14 Business Problems Roadmap</h2>
+        <p class="slide-subtitle">Structured progression across three tiers of analytical complexity</p>
+        <div class="grid-3">
+          <div class="feature-box" style="border-top:3px solid #10b981;">
+            <h4>Tier 1: Basic (Q1–Q5)</h4>
+            <p style="font-size:0.77rem; color:#64748b;">Unique cities, 2017 order counts, category gross sales, installment ratio, and state customer distribution.</p>
+          </div>
+          <div class="feature-box" style="border-top:3px solid #0284c7;">
+            <h4>Tier 2: Intermediate (Q6–Q9)</h4>
+            <p style="font-size:0.77rem; color:#64748b;">2018 monthly seasonality, category revenue share %, price-volume correlation, and seller revenue ranking.</p>
+          </div>
+          <div class="feature-box" style="border-top:3px solid #8b5cf6;">
+            <h4>Tier 3: Advanced (Q10–Q14)</h4>
+            <p style="font-size:0.77rem; color:#64748b;">Customer moving average, cumulative monthly sales, YoY growth, retention rate %, and annual top 3 customers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Tier 1 • Basic Queries</span>
+        <span class="slide-number">Slide 5 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Tier 1 Overview: Foundation &amp; Exploratory Auditing</h2>
+        <p class="slide-subtitle">Validating geography, calendar horizons, and payment terms</p>
+        <ul class="bullet-list">
+          <li><strong>Focus:</strong> Distinct deduplication, single-table aggregations, date part filtering, and 3-table join pipelines.</li>
+          <li><strong>Skills Tested:</strong> <code>DISTINCT</code>, <code>YEAR()</code>, <code>GROUP BY</code>, <code>SUM()</code>, <code>INNER JOIN</code>, and CTE proportion math.</li>
+          <li><strong>Business Impact:</strong> Establishes baseline geographical reach and installment financing dependency.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Slide 6 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Basic • Problem 1</span>
+        <span class="slide-number">Slide 6 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q1: Unique Cities with Customer Footprint</h2>
+        <p class="slide-subtitle">Auditing the geographical reach of customer registrations</p>
+        <div class="analogy-card">
+          <div class="analogy-title">The Commercial Problem</div>
+          <p>Marketing needs to eliminate duplicate customer entries to establish an accurate roster of all distinct Brazilian municipalities containing registered buyers.</p>
+        </div>
+        <div class="code-snippet">
+<span class="code-comment">-- Basic Query 1:</span>
+<span class="code-keyword">SELECT DISTINCT</span> customer_city 
+<span class="code-keyword">FROM</span> <span class="code-table">customers</span>
+<span class="code-keyword">ORDER BY</span> customer_city <span class="code-keyword">ASC</span>;
+        </div>
+        <p style="font-size:0.83rem; color:#059669; font-weight:700;">Result: Deduplicates thousands of customer rows into distinct geographic municipalities.</p>
+      </div>
+    </div>
+
+    <!-- Slide 7 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q1</span>
+        <span class="slide-number">Slide 7 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Visualizing Deduplication with DISTINCT</h2>
+        <p class="slide-subtitle">Watching repeated city values collapse into unique entries</p>
+        <p><strong>Raw Customer Records:</strong></p>
+        <table class="data-table">
+          <thead><tr><th>customer_id</th><th class="col-hl">customer_city</th><th>customer_state</th></tr></thead>
+          <tbody>
+            <tr><td>06b8999e2f...</td><td class="col-hl">franca</td><td>SP</td></tr>
+            <tr><td>18955e83d3...</td><td class="col-hl">sao bernardo do campo</td><td>SP</td></tr>
+            <tr class="row-matched"><td>4e7b3e0028...</td><td class="cell-hl">sao paulo</td><td>SP</td></tr>
+            <tr class="row-matched"><td>b2b6027bc5...</td><td class="cell-hl">sao paulo (Duplicate)</td><td>SP</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#64748b;"><code>DISTINCT</code> keeps exactly one instance of 'sao paulo', discarding identical duplicates.</p>
+      </div>
+    </div>
+
+    <!-- Slide 8 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Interactive Simulator • Q1</span>
+        <span class="slide-number">Slide 8 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Instructor Walkthrough: Top 5 Cities by Customer Volume</h2>
+        <p class="slide-subtitle">Extending Q1 to count customer concentration</p>
+        <table class="data-table">
+          <thead><tr><th class="col-hl">customer_city</th><th class="cell-hl">total_customers</th></tr></thead>
+          <tbody>
+            <tr class="row-matched"><td>sao paulo</td><td class="cell-hl">Top #1 Hub</td></tr>
+            <tr class="row-matched"><td>rio de janeiro</td><td class="cell-hl">Top #2 Hub</td></tr>
+          </tbody>
+        </table>
+        <div class="simulator-panel">
+          <button class="sim-btn" onclick="toggleSim('sim_b1')">&#9654; Run City Concentration Simulator</button>
+          <div id="sim_b1" class="sim-reveal">
+            <div class="code-snippet">
+<span class="code-keyword">SELECT</span> customer_city, <span class="code-keyword">COUNT</span>(customer_id) <span class="code-keyword">AS</span> total_customers
+<span class="code-keyword">FROM</span> <span class="code-table">customers</span>
+<span class="code-keyword">GROUP BY</span> customer_city
+<span class="code-keyword">ORDER BY</span> total_customers <span class="code-keyword">DESC</span>
+<span class="code-keyword">LIMIT</span> 5;
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Basic • Problem 2</span>
+        <span class="slide-number">Slide 9 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q2: Total Orders Placed in 2017</h2>
+        <p class="slide-subtitle">Auditing annual order intake during the first full scaling year</p>
+        <div class="analogy-card">
+          <div class="analogy-title">The Commercial Problem</div>
+          <p>The leadership team wants to confirm total order volume recorded during the 2017 calendar year.</p>
+        </div>
+        <div class="code-snippet">
+<span class="code-comment">-- Basic Query 2:</span>
+<span class="code-keyword">SELECT</span> 
+    <span class="code-keyword">YEAR</span>(order_purchase_timestamp) <span class="code-keyword">AS</span> purchase_year,
+    <span class="code-keyword">COUNT</span>(order_id) <span class="code-keyword">AS</span> total_orders_2017
+<span class="code-keyword">FROM</span> <span class="code-table">orders</span>
+<span class="code-keyword">WHERE</span> <span class="code-keyword">YEAR</span>(order_purchase_timestamp) = 2017
+<span class="code-keyword">GROUP BY</span> <span class="code-keyword">YEAR</span>(order_purchase_timestamp);
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 10 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q2</span>
+        <span class="slide-number">Slide 10 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Visualizing Date Filtration for 2017</h2>
+        <p class="slide-subtitle">Extracting year components from transaction timestamps</p>
+        <table class="data-table">
+          <thead><tr><th>order_id</th><th class="col-hl">order_purchase_timestamp</th><th>YEAR() Extracted</th><th>Passes Filter?</th></tr></thead>
+          <tbody>
+            <tr class="row-matched"><td>e481f51cbd...</td><td class="col-hl">2017-10-02 10:56:33</td><td>2017</td><td style="color:#10b981; font-weight:700;">KEEP</td></tr>
+            <tr class="row-matched"><td>53cdb2fc8b...</td><td class="col-hl">2017-07-24 20:41:37</td><td>2017</td><td style="color:#10b981; font-weight:700;">KEEP</td></tr>
+            <tr><td>47770eb910...</td><td class="col-hl">2018-03-21 15:30:29</td><td>2018</td><td style="color:#dc2626;">DROP</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#64748b;">Only timestamps falling within the 2017 boundary contribute to the count.</p>
+      </div>
+    </div>
+
+    <!-- Slide 11 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Basic • Problem 3</span>
+        <span class="slide-number">Slide 11 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q3: Total Sales Revenue per Category</h2>
+        <p class="slide-subtitle">Traversing a 3-table join across Products, Order Items, and Payments</p>
+        <div class="analogy-card">
+          <div class="analogy-title">The Commercial Problem</div>
+          <p>Product categories live in <code>products</code>, but actual payment amounts live in <code>payments</code>, linked through <code>order_items</code>. We must bridge all three tables.</p>
+        </div>
+        <div class="code-snippet">
+<span class="code-comment">-- Basic Query 3:</span>
+<span class="code-keyword">SELECT</span> 
+    <span class="code-keyword">UPPER</span>(p.product_category) <span class="code-keyword">AS</span> category_name,
+    <span class="code-keyword">ROUND</span>(<span class="code-keyword">SUM</span>(py.payment_value), 2) <span class="code-keyword">AS</span> total_sales
+<span class="code-keyword">FROM</span> <span class="code-table">products</span> p
+<span class="code-keyword">JOIN</span> <span class="code-table">order_items</span> oi <span class="code-keyword">ON</span> p.product_id = oi.product_id
+<span class="code-keyword">JOIN</span> <span class="code-table">payments</span> py <span class="code-keyword">ON</span> py.order_id = oi.order_id
+<span class="code-keyword">GROUP BY</span> <span class="code-keyword">UPPER</span>(p.product_category)
+<span class="code-keyword">ORDER BY</span> total_sales <span class="code-keyword">DESC</span>;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 12 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q3</span>
+        <span class="slide-number">Slide 12 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">The 3-Table Relational Pipeline in Action</h2>
+        <p class="slide-subtitle">Tracing products &rarr; line receipts &rarr; payment values</p>
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; padding:10px; border-radius:6px; font-family:monospace; font-size:0.8rem; text-align:center;">
+          [ products p ] ──(product_id)──&gt; [ order_items oi ] ──(order_id)──&gt; [ payments py ]
+        </div>
+        <table class="data-table" style="margin-top:6px;">
+          <thead><tr><th>Category</th><th class="col-hl">Total Revenue (R$)</th><th>Strategic Segment</th></tr></thead>
+          <tbody>
+            <tr class="row-matched"><td>BELEZA_SAUDE</td><td class="cell-hl">High Volume</td><td>Health &amp; Beauty</td></tr>
+            <tr class="row-matched"><td>INFORMATICA_ACESSORIOS</td><td class="cell-hl">High Ticket</td><td>Computers &amp; Accessories</td></tr>
+            <tr class="row-matched"><td>CAMA_MESA_BANHO</td><td class="cell-hl">Steady Household</td><td>Bed, Bath &amp; Table</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Slide 13 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Basic • Problem 4</span>
+        <span class="slide-number">Slide 13 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q4: Percentage of Orders Paid in Installments</h2>
+        <p class="slide-subtitle">Evaluating consumer financing dependency via CTE ratio calculation</p>
+        <div class="analogy-card">
+          <div class="analogy-title">The Commercial Problem</div>
+          <p>In Latin America, installment payments (credit card splits) are critical for retail conversion. What proportion of orders were paid in 2 or more installments?</p>
+        </div>
+        <div class="code-snippet">
+<span class="code-comment">-- Basic Query 4:</span>
+<span class="code-keyword">WITH</span> installment_orders <span class="code-keyword">AS</span> (
+    <span class="code-keyword">SELECT</span> * <span class="code-keyword">FROM</span> <span class="code-table">payments</span> 
+    <span class="code-keyword">WHERE</span> payment_installments &gt; 1
+)
+<span class="code-keyword">SELECT</span> 
+    <span class="code-keyword">ROUND</span>(100.0 * <span class="code-keyword">COUNT</span>(*) / (<span class="code-keyword">SELECT COUNT</span>(*) <span class="code-keyword">FROM</span> <span class="code-table">payments</span>), 2) <span class="code-keyword">AS</span> pct_installment_orders
+<span class="code-keyword">FROM</span> installment_orders;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 14 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q4</span>
+        <span class="slide-number">Slide 14 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Installments vs. Full Upfront Payment</h2>
+        <p class="slide-subtitle">Auditing the ratio of split credit vs. single-payment orders</p>
+        <table class="data-table">
+          <thead><tr><th>Financing Method</th><th>Installments Count</th><th class="col-hl">Proportion (%)</th><th>Business Takeaway</th></tr></thead>
+          <tbody>
+            <tr class="row-matched"><td>Installments (Splits)</td><td>&gt; 1 Installment</td><td class="cell-hl">Over 50%</td><td>Critical to offer flexible credit partners</td></tr>
+            <tr><td>Single Payment</td><td>= 1 Installment</td><td>Under 50%</td><td>Direct debit, cash/boleto, single-swipe</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#059669; font-weight:600;">More than half of all platform transactions depend on installment financing!</p>
+      </div>
+    </div>
+
+    <!-- Slide 15 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Basic • Problem 5</span>
+        <span class="slide-number">Slide 15 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q5: Customer Distribution by State</h2>
+        <p class="slide-subtitle">Grouping customer accounts by regional state codes</p>
+        <div class="code-snippet">
+<span class="code-comment">-- Basic Query 5:</span>
+<span class="code-keyword">SELECT</span> 
+    customer_state, 
+    <span class="code-keyword">COUNT</span>(customer_id) <span class="code-keyword">AS</span> customer_count
+<span class="code-keyword">FROM</span> <span class="code-table">customers</span>
+<span class="code-keyword">GROUP BY</span> customer_state
+<span class="code-keyword">ORDER BY</span> customer_count <span class="code-keyword">DESC</span>;
+        </div>
+        <table class="data-table" style="margin-top:6px;">
+          <thead><tr><th>State Code</th><th>Region</th><th class="col-hl">customer_count</th><th>Market Share</th></tr></thead>
+          <tbody>
+            <tr class="row-matched"><td>SP (São Paulo)</td><td>Southeast</td><td class="cell-hl">40%+</td><td>Primary Economic Core</td></tr>
+            <tr class="row-matched"><td>RJ (Rio de Janeiro)</td><td>Southeast</td><td class="cell-hl">12%+</td><td>Secondary Metro Core</td></tr>
+            <tr class="row-matched"><td>MG (Minas Gerais)</td><td>Southeast</td><td class="cell-hl">11%+</td><td>Tertiary Regional Hub</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Slide 16 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Interactive Simulator • Q5</span>
+        <span class="slide-number">Slide 16 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Instructor Walkthrough: Top 3 State Concentration</h2>
+        <p class="slide-subtitle">Calculating cumulative percentage across top states</p>
+        <div class="simulator-panel">
+          <button class="sim-btn" onclick="toggleSim('sim_b5')">&#9654; Run State Concentration Simulator</button>
+          <div id="sim_b5" class="sim-reveal">
+            <div class="code-snippet">
+<span class="code-keyword">SELECT</span> 
+    customer_state,
+    <span class="code-keyword">COUNT</span>(customer_id) <span class="code-keyword">AS</span> customers,
+    <span class="code-keyword">ROUND</span>(100.0 * <span class="code-keyword">COUNT</span>(customer_id) / (<span class="code-keyword">SELECT COUNT</span>(*) <span class="code-keyword">FROM</span> <span class="code-table">customers</span>), 2) <span class="code-keyword">AS</span> pct_of_total
+<span class="code-keyword">FROM</span> <span class="code-table">customers</span>
+<span class="code-keyword">GROUP BY</span> customer_state
+<span class="code-keyword">ORDER BY</span> customers <span class="code-keyword">DESC</span>
+<span class="code-keyword">LIMIT</span> 3;
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 17 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Tier 2 • Intermediate Queries</span>
+        <span class="slide-number">Slide 17 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Tier 2 Overview: Intermediate Business Analysis</h2>
+        <p class="slide-subtitle">Seasonality, revenue contribution shares, correlation, and seller rankings</p>
+        <ul class="bullet-list">
+          <li><strong>Focus:</strong> Chronological monthly bucketing, percentage contribution formulas, price vs. volume distribution, and window ranking.</li>
+          <li><strong>Skills Tested:</strong> <code>MONTH()</code>, Cross-Table Ratio Calculations, Multi-Column Grouping, and <code>DENSE_RANK()</code>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Slide 18 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Intermediate • Problem 1</span>
+        <span class="slide-number">Slide 18 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q6: Monthly Order Seasonality in 2018</h2>
+        <p class="slide-subtitle">Tracking order volume month-by-month</p>
+        <div class="code-snippet">
+<span class="code-comment">-- Intermediate Query 1:</span>
+<span class="code-keyword">SELECT</span> 
+    <span class="code-keyword">YEAR</span>(order_purchase_timestamp) <span class="code-keyword">AS</span> order_year,
+    <span class="code-keyword">MONTH</span>(order_purchase_timestamp) <span class="code-keyword">AS</span> order_month,
+    <span class="code-keyword">COUNT</span>(order_id) <span class="code-keyword">AS</span> total_orders
+<span class="code-keyword">FROM</span> <span class="code-table">orders</span>
+<span class="code-keyword">WHERE</span> <span class="code-keyword">YEAR</span>(order_purchase_timestamp) = 2018
+<span class="code-keyword">GROUP BY</span> <span class="code-keyword">YEAR</span>(order_purchase_timestamp), <span class="code-keyword">MONTH</span>(order_purchase_timestamp)
+<span class="code-keyword">ORDER BY</span> order_month <span class="code-keyword">ASC</span>;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 19 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q6</span>
+        <span class="slide-number">Slide 19 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Visualizing 2018 Monthly Order Distribution</h2>
+        <p class="slide-subtitle">Month-by-month order pacing</p>
+        <table class="data-table">
+          <thead><tr><th>Year</th><th class="col-hl">Month</th><th>Volume Characteristic</th></tr></thead>
+          <tbody>
+            <tr><td>2018</td><td class="col-hl">1 (Jan)</td><td>Strong New Year Demand</td></tr>
+            <tr><td>2018</td><td class="col-hl">5 (May)</td><td>Mother's Day Peak</td></tr>
+            <tr><td>2018</td><td class="col-hl">8 (Aug)</td><td>Pre-Spring Fulfillment High</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#64748b;">Notice the steady month-on-month scaling in 2018 prior to dataset cut-off.</p>
+      </div>
+    </div>
+
+    <!-- Slide 20 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Intermediate • Problem 2</span>
+        <span class="slide-number">Slide 20 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q7: Category Percentage Contribution to Total Revenue</h2>
+        <p class="slide-subtitle">Evaluating portfolio market share per category</p>
+        <div class="code-snippet">
+<span class="code-comment">-- Intermediate Query 2:</span>
+<span class="code-keyword">SELECT</span> 
+    p.product_category,
+    <span class="code-keyword">ROUND</span>(<span class="code-keyword">SUM</span>(py.payment_value), 2) <span class="code-keyword">AS</span> category_sales,
+    <span class="code-keyword">ROUND</span>(100.0 * <span class="code-keyword">SUM</span>(py.payment_value) / (<span class="code-keyword">SELECT SUM</span>(payment_value) <span class="code-keyword">FROM</span> <span class="code-table">payments</span>), 2) <span class="code-keyword">AS</span> revenue_pct
+<span class="code-keyword">FROM</span> <span class="code-table">products</span> p
+<span class="code-keyword">JOIN</span> <span class="code-table">order_items</span> oi <span class="code-keyword">ON</span> p.product_id = oi.product_id
+<span class="code-keyword">JOIN</span> <span class="code-table">payments</span> py <span class="code-keyword">ON</span> oi.order_id = py.order_id
+<span class="code-keyword">GROUP BY</span> p.product_category
+<span class="code-keyword">ORDER BY</span> revenue_pct <span class="code-keyword">DESC</span>;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 21 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q7</span>
+        <span class="slide-number">Slide 21 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Top Revenue Contributors (% Share)</h2>
+        <p class="slide-subtitle">Pareto analysis of categories driving the majority of marketplace GMV</p>
+        <table class="data-table">
+          <thead><tr><th>Category</th><th>Gross Revenue</th><th class="col-hl">Contribution Share (%)</th></tr></thead>
+          <tbody>
+            <tr class="row-matched"><td>Beleza &amp; Saude</td><td>R$ High</td><td class="cell-hl">Top Share Leader</td></tr>
+            <tr class="row-matched"><td>Informatica &amp; Acessorios</td><td>R$ High</td><td class="cell-hl">Strong Runner-Up</td></tr>
+            <tr class="row-matched"><td>Cama Mesa Banho</td><td>R$ High</td><td class="cell-hl">Core Household Driver</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#059669; font-weight:600;">The top 10 categories account for over 60% of total marketplace gross merchandise value (GMV).</p>
+      </div>
+    </div>
+
+    <!-- Slide 22 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Intermediate • Problem 3</span>
+        <span class="slide-number">Slide 22 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q8: Price vs. Purchase Volume Correlation</h2>
+        <p class="slide-subtitle">Analyzing price elasticity: Do expensive products sell less often?</p>
+        <div class="code-snippet">
+<span class="code-comment">-- Intermediate Query 3:</span>
+<span class="code-keyword">SELECT</span> 
+    p.product_id,
+    oi.price,
+    <span class="code-keyword">COUNT</span>(p.product_id) <span class="code-keyword">AS</span> times_purchased
+<span class="code-keyword">FROM</span> <span class="code-table">products</span> p
+<span class="code-keyword">JOIN</span> <span class="code-table">order_items</span> oi <span class="code-keyword">ON</span> p.product_id = oi.product_id
+<span class="code-keyword">GROUP BY</span> p.product_id, oi.price
+<span class="code-keyword">ORDER BY</span> times_purchased <span class="code-keyword">DESC</span>;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 23 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q8</span>
+        <span class="slide-number">Slide 23 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Price vs. Volume Elasticity Curve</h2>
+        <p class="slide-subtitle">Higher-priced items show lower purchase frequency</p>
+        <table class="data-table">
+          <thead><tr><th>product_id</th><th class="col-hl">price (R$)</th><th class="cell-hl">times_purchased</th><th>Elasticity Segment</th></tr></thead>
+          <tbody>
+            <tr class="row-matched"><td>Top SKU A</td><td class="col-hl">Under R$ 50.00</td><td class="cell-hl">500+ Purchases</td><td>High-velocity budget staple</td></tr>
+            <tr><td>Mid SKU B</td><td class="col-hl">R$ 150 - R$ 300</td><td>50 - 150 Purchases</td><td>Standard consideration tier</td></tr>
+            <tr><td>High SKU C</td><td class="col-hl">Over R$ 1,000.00</td><td>1 - 5 Purchases</td><td>Low-frequency luxury/appliance</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Slide 24 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Intermediate • Problem 4</span>
+        <span class="slide-number">Slide 24 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q9: Seller Revenue Generation &amp; Ranking</h2>
+        <p class="slide-subtitle">Ranking marketplace sellers using DENSE_RANK()</p>
+        <div class="code-snippet">
+<span class="code-comment">-- Intermediate Query 4:</span>
+<span class="code-keyword">SELECT</span> 
+    oi.seller_id,
+    <span class="code-keyword">ROUND</span>(<span class="code-keyword">SUM</span>(py.payment_value), 2) <span class="code-keyword">AS</span> total_revenue,
+    <span class="code-keyword">DENSE_RANK() OVER</span> (<span class="code-keyword">ORDER BY SUM</span>(py.payment_value) <span class="code-keyword">DESC</span>) <span class="code-keyword">AS</span> seller_rank
+<span class="code-keyword">FROM</span> <span class="code-table">payments</span> py
+<span class="code-keyword">JOIN</span> <span class="code-table">order_items</span> oi <span class="code-keyword">ON</span> oi.order_id = py.order_id
+<span class="code-keyword">GROUP BY</span> oi.seller_id;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 25 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q9</span>
+        <span class="slide-number">Slide 25 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Seller Revenue Leaderboard</h2>
+        <p class="slide-subtitle">Output verification of top merchant accounts</p>
+        <table class="data-table">
+          <thead><tr><th class="col-hl">seller_rank</th><th>seller_id</th><th class="cell-hl">Total Revenue Generated</th></tr></thead>
+          <tbody>
+            <tr class="row-matched"><td class="col-hl">1</td><td>Seller #4869f7a5ca...</td><td class="cell-hl">Apex GMV Partner</td></tr>
+            <tr class="row-matched"><td class="col-hl">2</td><td>Seller #53243586a4...</td><td class="cell-hl">High Volume Electronics</td></tr>
+            <tr class="row-matched"><td class="col-hl">3</td><td>Seller #4a3ca9315b...</td><td class="cell-hl">National Furniture Merchant</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#64748b;">Notice: <code>DENSE_RANK()</code> prevents gaps in merchant tier ranking.</p>
+      </div>
+    </div>
+
+    <!-- Slide 26 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Tier 3 • Advanced Queries</span>
+        <span class="slide-number">Slide 26 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Tier 3 Overview: Advanced Analytical Engineering</h2>
+        <p class="slide-subtitle">Moving averages, cumulative pacing, YoY expansion, retention, and annual top spenders</p>
+        <ul class="bullet-list">
+          <li><strong>Focus:</strong> Complex window framing (<code>ROWS BETWEEN</code>), cumulative partitioning, <code>LAG()</code> deltas, and multi-step CTE pipelines.</li>
+          <li><strong>Skills Tested:</strong> Moving window frames, partitioned running sums, growth rate formulas, customer repeat ratios, and annual ranking.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Slide 27 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Advanced • Problem 1</span>
+        <span class="slide-number">Slide 27 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q10: Moving Average of Order Values per Customer</h2>
+        <p class="slide-subtitle">Smoothing historical spend using a moving window frame</p>
+        <div class="analogy-card">
+          <div class="analogy-title">The Commercial Problem</div>
+          <p>For customers who place multiple orders, leadership wants to smooth out order values to understand their rolling spending habits over time.</p>
+        </div>
+        <div class="code-snippet">
+<span class="code-comment">-- Advanced Query 1:</span>
+<span class="code-keyword">SELECT</span> 
+    o.customer_id,
+    o.order_id,
+    py.payment_value,
+    <span class="code-keyword">AVG</span>(py.payment_value) <span class="code-keyword">OVER</span> (
+        <span class="code-keyword">PARTITION BY</span> o.customer_id 
+        <span class="code-keyword">ORDER BY</span> o.order_purchase_timestamp 
+        <span class="code-keyword">ROWS BETWEEN 1 PRECEDING AND CURRENT ROW</span>
+    ) <span class="code-keyword">AS</span> moving_avg_order_value
+<span class="code-keyword">FROM</span> <span class="code-table">orders</span> o
+<span class="code-keyword">JOIN</span> <span class="code-table">payments</span> py <span class="code-keyword">ON</span> o.order_id = py.order_id;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 28 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q10</span>
+        <span class="slide-number">Slide 28 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Visualizing the Moving Window Frame</h2>
+        <p class="slide-subtitle"><code>ROWS BETWEEN 1 PRECEDING AND CURRENT ROW</code></p>
+        <table class="data-table">
+          <thead><tr><th>Order Sequence</th><th>Payment Value</th><th class="col-hl">Frame Window Evaluated</th><th class="cell-hl">moving_avg</th></tr></thead>
+          <tbody>
+            <tr><td>Order 1</td><td>R$ 100.00</td><td class="col-hl">[R$ 100.00] (Initial)</td><td class="cell-hl">R$ 100.00</td></tr>
+            <tr class="row-matched"><td>Order 2</td><td>R$ 200.00</td><td class="col-hl">[R$ 100.00, R$ 200.00]</td><td class="cell-hl">R$ 150.00</td></tr>
+            <tr class="row-matched"><td>Order 3</td><td>R$ 300.00</td><td class="col-hl">[R$ 200.00, R$ 300.00]</td><td class="cell-hl">R$ 250.00</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#64748b;">Notice: Order 1 drops out of the frame as Order 3 enters!</p>
+      </div>
+    </div>
+
+    <!-- Slide 29 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Advanced • Problem 2</span>
+        <span class="slide-number">Slide 29 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q11: Cumulative Monthly Sales per Year</h2>
+        <p class="slide-subtitle">Tracking running financial growth curves with partition resets</p>
+        <div class="code-snippet">
+<span class="code-comment">-- Advanced Query 2:</span>
+<span class="code-keyword">WITH</span> monthly_sales <span class="code-keyword">AS</span> (
+    <span class="code-keyword">SELECT</span> 
+        <span class="code-keyword">YEAR</span>(o.order_purchase_timestamp) <span class="code-keyword">AS</span> sales_year,
+        <span class="code-keyword">MONTH</span>(o.order_purchase_timestamp) <span class="code-keyword">AS</span> sales_month,
+        <span class="code-keyword">SUM</span>(py.payment_value) <span class="code-keyword">AS</span> monthly_revenue
+    <span class="code-keyword">FROM</span> <span class="code-table">orders</span> o
+    <span class="code-keyword">JOIN</span> <span class="code-table">payments</span> py <span class="code-keyword">ON</span> o.order_id = py.order_id
+    <span class="code-keyword">GROUP BY</span> <span class="code-keyword">YEAR</span>(o.order_purchase_timestamp), <span class="code-keyword">MONTH</span>(o.order_purchase_timestamp)
+)
+<span class="code-keyword">SELECT</span> 
+    sales_year,
+    sales_month,
+    monthly_revenue,
+    <span class="code-keyword">SUM</span>(monthly_revenue) <span class="code-keyword">OVER</span> (
+        <span class="code-keyword">PARTITION BY</span> sales_year 
+        <span class="code-keyword">ORDER BY</span> sales_month <span class="code-keyword">ASC</span>
+    ) <span class="code-keyword">AS</span> cumulative_annual_revenue
+<span class="code-keyword">FROM</span> monthly_sales;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 30 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q11</span>
+        <span class="slide-number">Slide 30 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Visualizing Cumulative Revenue Progression</h2>
+        <p class="slide-subtitle">Pacing revenue accumulation across the fiscal calendar</p>
+        <table class="data-table">
+          <thead><tr><th>Year</th><th>Month</th><th>Monthly Revenue (R$)</th><th class="cell-hl">Cumulative Annual Revenue (R$)</th></tr></thead>
+          <tbody>
+            <tr><td>2017</td><td>1 (Jan)</td><td>R$ 138,488</td><td class="cell-hl">R$ 138,488</td></tr>
+            <tr><td>2017</td><td>2 (Feb)</td><td>R$ 291,908</td><td class="cell-hl">R$ 430,396 (Month 1 + 2)</td></tr>
+            <tr><td>2017</td><td>3 (Mar)</td><td>R$ 440,845</td><td class="cell-hl">R$ 871,241 (Month 1 + 2 + 3)</td></tr>
+            <tr class="row-matched"><td>2018</td><td>1 (Jan)</td><td>R$ 1,114,883</td><td class="cell-hl">R$ 1,114,883 (Reset!)</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#059669; font-weight:600;">The running total resets to the baseline at the start of each new year!</p>
+      </div>
+    </div>
+
+    <!-- Slide 31 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Advanced • Problem 3</span>
+        <span class="slide-number">Slide 31 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q12: Year-over-Year (YoY) Sales Growth Rate</h2>
+        <p class="slide-subtitle">Measuring macro platform expansion using LAG()</p>
+        <div class="analogy-card">
+          <div class="analogy-title">The Commercial Problem</div>
+          <p>Investors require verified Year-over-Year growth percentages to gauge whether Olist's marketplace adoption is accelerating or saturating.</p>
+        </div>
+        <div class="code-snippet">
+<span class="code-comment">-- Advanced Query 3:</span>
+<span class="code-keyword">WITH</span> annual_revenue <span class="code-keyword">AS</span> (
+    <span class="code-keyword">SELECT</span> 
+        <span class="code-keyword">YEAR</span>(o.order_purchase_timestamp) <span class="code-keyword">AS</span> sales_year,
+        <span class="code-keyword">ROUND</span>(<span class="code-keyword">SUM</span>(py.payment_value), 2) <span class="code-keyword">AS</span> total_sales
+    <span class="code-keyword">FROM</span> <span class="code-table">orders</span> o
+    <span class="code-keyword">JOIN</span> <span class="code-table">payments</span> py <span class="code-keyword">ON</span> o.order_id = py.order_id
+    <span class="code-keyword">GROUP BY</span> <span class="code-keyword">YEAR</span>(o.order_purchase_timestamp)
+)
+<span class="code-keyword">SELECT</span> 
+    sales_year,
+    total_sales,
+    <span class="code-keyword">LAG</span>(total_sales) <span class="code-keyword">OVER</span> (<span class="code-keyword">ORDER BY</span> sales_year <span class="code-keyword">ASC</span>) <span class="code-keyword">AS</span> previous_year_sales,
+    total_sales - <span class="code-keyword">LAG</span>(total_sales) <span class="code-keyword">OVER</span> (<span class="code-keyword">ORDER BY</span> sales_year <span class="code-keyword">ASC</span>) <span class="code-keyword">AS</span> yoy_growth_inr,
+    <span class="code-keyword">ROUND</span>(100.0 * (total_sales - <span class="code-keyword">LAG</span>(total_sales) <span class="code-keyword">OVER</span> (<span class="code-keyword">ORDER BY</span> sales_year <span class="code-keyword">ASC</span>)) / 
+          <span class="code-keyword">NULLIF</span>(<span class="code-keyword">LAG</span>(total_sales) <span class="code-keyword">OVER</span> (<span class="code-keyword">ORDER BY</span> sales_year <span class="code-keyword">ASC</span>), 0), 2) <span class="code-keyword">AS</span> yoy_growth_pct
+<span class="code-keyword">FROM</span> annual_revenue;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 32 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q12</span>
+        <span class="slide-number">Slide 32 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Auditing Year-over-Year Growth Numbers</h2>
+        <p class="slide-subtitle">Tracing revenue growth across annual milestones</p>
+        <table class="data-table">
+          <thead><tr><th>Fiscal Year</th><th>Annual Sales (R$)</th><th class="col-hl">Previous Year</th><th class="cell-hl">YoY Growth Rate</th></tr></thead>
+          <tbody>
+            <tr><td>2016</td><td>R$ 59,000+ (Launch Phase)</td><td>NULL</td><td>Baseline Inception</td></tr>
+            <tr class="row-matched"><td>2017</td><td>R$ 7.2 Million+</td><td class="col-hl">R$ 59,000+</td><td class="cell-hl">&gt; 12,000% (Hyper-Scale)</td></tr>
+            <tr class="row-matched"><td>2018</td><td>R$ 8.7 Million+ (Partial)</td><td class="col-hl">R$ 7.2 Million+</td><td class="cell-hl">+20%+ Continued Expansion</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#059669; font-weight:600;">Demonstrates massive marketplace scale: moving from an initial pilot to an established national platform.</p>
+      </div>
+    </div>
+
+    <!-- Slide 33 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Advanced • Problem 4</span>
+        <span class="slide-number">Slide 33 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q13: Customer Retention Rate Analysis</h2>
+        <p class="slide-subtitle">Calculating the percentage of customers who made more than one purchase</p>
+        <div class="analogy-card">
+          <div class="analogy-title">The Commercial Problem</div>
+          <p>Acquiring customers is expensive. Retention rate measures sustainable loyalty: what percentage of total registered customers made <strong>2 or more purchases</strong>?</p>
+        </div>
+        <div class="code-snippet">
+<span class="code-comment">-- Advanced Query 4:</span>
+<span class="code-keyword">WITH</span> repeat_buyers <span class="code-keyword">AS</span> (
+    <span class="code-keyword">SELECT</span> customer_id, <span class="code-keyword">COUNT</span>(order_id) <span class="code-keyword">AS</span> order_count
+    <span class="code-keyword">FROM</span> <span class="code-table">orders</span>
+    <span class="code-keyword">GROUP BY</span> customer_id
+    <span class="code-keyword">HAVING COUNT</span>(order_id) &gt; 1
+)
+<span class="code-keyword">SELECT</span> 
+    <span class="code-keyword">COUNT</span>(*) <span class="code-keyword">AS</span> repeat_customer_count,
+    (<span class="code-keyword">SELECT COUNT</span>(<span class="code-keyword">DISTINCT</span> customer_id) <span class="code-keyword">FROM</span> <span class="code-table">customers</span>) <span class="code-keyword">AS</span> total_customers,
+    <span class="code-keyword">ROUND</span>(100.0 * <span class="code-keyword">COUNT</span>(*) / (<span class="code-keyword">SELECT COUNT</span>(<span class="code-keyword">DISTINCT</span> customer_id) <span class="code-keyword">FROM</span> <span class="code-table">customers</span>), 2) <span class="code-keyword">AS</span> customer_retention_rate_pct
+<span class="code-keyword">FROM</span> repeat_buyers;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 34 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q13</span>
+        <span class="slide-number">Slide 34 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Deconstructing Customer Retention</h2>
+        <p class="slide-subtitle">Understanding single-purchase versus repeat-buyer dynamics</p>
+        <table class="data-table">
+          <thead><tr><th>Shopper Cohort</th><th>Order Volume</th><th>Business Definition</th><th class="col-hl">Strategic Priority</th></tr></thead>
+          <tbody>
+            <tr><td>One-Time Buyers</td><td>1 Order Only</td><td>Acquired but not retained</td><td>Target with re-activation discounts</td></tr>
+            <tr class="row-matched"><td>Repeat Loyalists</td><td>&gt;= 2 Orders</td><td>Retained active shoppers</td><td class="cell-hl">Prime candidates for VIP subscription</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#64748b;">In typical e-commerce marketplaces, repeat buyers drive over 40% of long-term gross margin.</p>
+      </div>
+    </div>
+
+    <!-- Slide 35 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Advanced • Problem 5</span>
+        <span class="slide-number">Slide 35 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Q14: Top 3 Spending Customers in Each Year</h2>
+        <p class="slide-subtitle">Solving Top-N per group using DENSE_RANK() and PARTITION BY</p>
+        <div class="code-snippet">
+<span class="code-comment">-- Advanced Query 5:</span>
+<span class="code-keyword">WITH</span> ranked_spenders <span class="code-keyword">AS</span> (
+    <span class="code-keyword">SELECT</span> 
+        o.customer_id,
+        <span class="code-keyword">YEAR</span>(o.order_purchase_timestamp) <span class="code-keyword">AS</span> purchase_year,
+        <span class="code-keyword">ROUND</span>(<span class="code-keyword">SUM</span>(py.payment_value), 2) <span class="code-keyword">AS</span> total_spent,
+        <span class="code-keyword">DENSE_RANK() OVER</span> (
+            <span class="code-keyword">PARTITION BY YEAR</span>(o.order_purchase_timestamp) 
+            <span class="code-keyword">ORDER BY SUM</span>(py.payment_value) <span class="code-keyword">DESC</span>
+        ) <span class="code-keyword">AS</span> annual_spend_rank
+    <span class="code-keyword">FROM</span> <span class="code-table">orders</span> o
+    <span class="code-keyword">JOIN</span> <span class="code-table">payments</span> py <span class="code-keyword">ON</span> o.order_id = py.order_id
+    <span class="code-keyword">GROUP BY</span> o.customer_id, <span class="code-keyword">YEAR</span>(o.order_purchase_timestamp)
+)
+<span class="code-keyword">SELECT</span> purchase_year, annual_spend_rank, customer_id, total_spent
+<span class="code-keyword">FROM</span> ranked_spenders
+<span class="code-keyword">WHERE</span> annual_spend_rank &lt;= 3
+<span class="code-keyword">ORDER BY</span> purchase_year <span class="code-keyword">ASC</span>, annual_spend_rank <span class="code-keyword">ASC</span>;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 36 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Visual Walkthrough • Q14</span>
+        <span class="slide-number">Slide 36 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Annual VIP Spender Leaderboards</h2>
+        <p class="slide-subtitle">Output verification of top spenders by year</p>
+        <table class="data-table">
+          <thead><tr><th>Year</th><th class="col-hl">annual_spend_rank</th><th>customer_id</th><th class="cell-hl">Total Spent (R$)</th></tr></thead>
+          <tbody>
+            <tr><td>2017</td><td class="col-hl">1</td><td>Customer #1617b...</td><td class="cell-hl">Top Annual Spender 2017</td></tr>
+            <tr><td>2017</td><td class="col-hl">2</td><td>Customer #ec798...</td><td class="cell-hl">Runner Up 2017</td></tr>
+            <tr><td>2017</td><td class="col-hl">3</td><td>Customer #f48d3...</td><td class="cell-hl">3rd Place 2017</td></tr>
+            <tr class="row-matched"><td>2018</td><td class="col-hl">1 (Reset!)</td><td>Customer #0a0a9...</td><td class="cell-hl">Top Annual Spender 2018</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.82rem; color:#059669; font-weight:600;">The rank resets to 1 as the partition crosses into 2018.</p>
+      </div>
+    </div>
+
+    <!-- Slide 37 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Query Refactoring</span>
+        <span class="slide-number">Slide 37 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Production Refactoring: Fixing Subqueries &amp; Joins</h2>
+        <p class="slide-subtitle">Optimizing queries for high-throughput enterprise environments</p>
+        <div class="grid-2">
+          <div class="feature-box">
+            <h4>Inefficient Unnested Join Pattern</h4>
+            <p style="font-size:0.8rem; color:#475569;">Joining <code>payments</code> on <code>order_items</code> without grouping can duplicate payment values if an order contains 5 items!</p>
+          </div>
+          <div class="feature-box" style="border-left:4px solid #10b981;">
+            <h4>Production-Grade Refactored Pattern</h4>
+            <p style="font-size:0.8rem; color:#475569;">Join payments directly to <code>orders</code> at the order-header grain to ensure accurate revenue calculations without duplication.</p>
+          </div>
+        </div>
+        <div class="code-snippet">
+<span class="code-comment">-- Safe grain alignment:</span>
+<span class="code-keyword">SELECT</span> o.order_id, py.payment_value
+<span class="code-keyword">FROM</span> <span class="code-table">orders</span> o 
+<span class="code-keyword">JOIN</span> <span class="code-table">payments</span> py <span class="code-keyword">ON</span> o.order_id = py.order_id;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 38 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">SARGability in Practice</span>
+        <span class="slide-number">Slide 38 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Refactoring Date Filters for High-Speed Index Use</h2>
+        <p class="slide-subtitle">Replacing YEAR() with SARGable date ranges in 2017/2018 queries</p>
+        <div class="grid-2">
+          <div class="feature-box" style="border-top:3px solid #ef4444;">
+            <h4>Slow Non-SARGable Pattern</h4>
+            <div class="code-snippet" style="font-size:0.73rem;">
+<span class="code-keyword">WHERE YEAR</span>(order_purchase_timestamp) = 2017;
+            </div>
+            <p style="font-size:0.78rem; color:#dc2626; margin-top:3px;">Forces full table scan across 100,000+ rows!</p>
+          </div>
+          <div class="feature-box" style="border-top:3px solid #10b981;">
+            <h4>Optimized SARGable Range</h4>
+            <div class="code-snippet" style="font-size:0.73rem;">
+<span class="code-keyword">WHERE</span> order_purchase_timestamp &gt;= <span class="code-table">'2017-01-01'</span>
+  <span class="code-keyword">AND</span> order_purchase_timestamp &lt; <span class="code-table">'2018-01-01'</span>;
+            </div>
+            <p style="font-size:0.78rem; color:#10b981; margin-top:3px;">Leverages B-Tree index range scans directly!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 39 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Permanent Reporting View</span>
+        <span class="slide-number">Slide 39 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Packaging the Project: <code>v_master_ecommerce_kpis</code></h2>
+        <p class="slide-subtitle">Creating a consolidated reporting view for dashboard tools</p>
+        <div class="code-snippet">
+<span class="code-keyword">CREATE OR REPLACE VIEW</span> <span class="code-table">v_master_ecommerce_kpis</span> <span class="code-keyword">AS</span>
+<span class="code-keyword">SELECT</span> 
+    o.order_id,
+    c.customer_id,
+    c.customer_city,
+    c.customer_state,
+    o.order_purchase_timestamp,
+    <span class="code-keyword">YEAR</span>(o.order_purchase_timestamp) <span class="code-keyword">AS</span> purchase_year,
+    <span class="code-keyword">MONTH</span>(o.order_purchase_timestamp) <span class="code-keyword">AS</span> purchase_month,
+    p.product_category,
+    oi.seller_id,
+    py.payment_type,
+    py.payment_installments,
+    py.payment_value
+<span class="code-keyword">FROM</span> <span class="code-table">orders</span> o
+<span class="code-keyword">JOIN</span> <span class="code-table">customers</span> c <span class="code-keyword">ON</span> o.customer_id = c.customer_id
+<span class="code-keyword">JOIN</span> <span class="code-table">order_items</span> oi <span class="code-keyword">ON</span> o.order_id = oi.order_id
+<span class="code-keyword">JOIN</span> <span class="code-table">products</span> p <span class="code-keyword">ON</span> oi.product_id = p.product_id
+<span class="code-keyword">JOIN</span> <span class="code-table">payments</span> py <span class="code-keyword">ON</span> o.order_id = py.order_id;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 40 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">View Testing</span>
+        <span class="slide-number">Slide 40 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Querying the Consolidated KPI View</h2>
+        <p class="slide-subtitle">Verifying clean multi-table output</p>
+        <div class="code-snippet">
+<span class="code-keyword">SELECT</span> 
+    customer_state, 
+    product_category, 
+    <span class="code-keyword">ROUND</span>(<span class="code-keyword">SUM</span>(payment_value), 2) <span class="code-keyword">AS</span> regional_sales
+<span class="code-keyword">FROM</span> <span class="code-table">v_master_ecommerce_kpis</span>
+<span class="code-keyword">WHERE</span> purchase_year = 2018 <span class="code-keyword">AND</span> customer_state = <span class="code-table">'SP'</span>
+<span class="code-keyword">GROUP BY</span> customer_state, product_category
+<span class="code-keyword">ORDER BY</span> regional_sales <span class="code-keyword">DESC</span>
+<span class="code-keyword">LIMIT</span> 5;
+        </div>
+        <p style="font-size:0.82rem; color:#059669; font-weight:600;">The 5-table join is encapsulated into an accessible, queryable virtual asset.</p>
+      </div>
+    </div>
+
+    <!-- Slide 41 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Stored Procedure Automation</span>
+        <span class="slide-number">Slide 41 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Automation: <code>sp_generate_annual_sales_summary()</code></h2>
+        <p class="slide-subtitle">Automating annual revenue reporting via stored procedures</p>
+        <div class="code-snippet">
+<span class="code-keyword">DELIMITER</span> $$
+<span class="code-keyword">CREATE PROCEDURE</span> <span class="code-table">sp_generate_annual_sales_summary</span>(<span class="code-keyword">IN</span> p_year <span class="code-keyword">INT</span>)
+<span class="code-keyword">BEGIN</span>
+    <span class="code-keyword">SELECT</span> 
+        <span class="code-keyword">MONTH</span>(o.order_purchase_timestamp) <span class="code-keyword">AS</span> calendar_month,
+        <span class="code-keyword">COUNT</span>(<span class="code-keyword">DISTINCT</span> o.order_id) <span class="code-keyword">AS</span> total_orders,
+        <span class="code-keyword">ROUND</span>(<span class="code-keyword">SUM</span>(py.payment_value), 2) <span class="code-keyword">AS</span> total_sales
+    <span class="code-keyword">FROM</span> <span class="code-table">orders</span> o
+    <span class="code-keyword">JOIN</span> <span class="code-table">payments</span> py <span class="code-keyword">ON</span> o.order_id = py.order_id
+    <span class="code-keyword">WHERE</span> <span class="code-keyword">YEAR</span>(o.order_purchase_timestamp) = p_year
+    <span class="code-keyword">GROUP BY</span> <span class="code-keyword">MONTH</span>(o.order_purchase_timestamp)
+    <span class="code-keyword">ORDER BY</span> calendar_month <span class="code-keyword">ASC</span>;
+<span class="code-keyword">END</span> $$
+<span class="code-keyword">DELIMITER</span> ;
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 42 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Procedure Execution</span>
+        <span class="slide-number">Slide 42 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Executing the Automated Sales Procedure</h2>
+        <p class="slide-subtitle">Executing <code>CALL sp_generate_annual_sales_summary(2018)</code></p>
+        <div class="simulator-panel">
+          <button class="sim-btn" onclick="toggleSim('sim_sp_exec')">&#9654; Run Automated Annual Audit</button>
+          <div id="sim_sp_exec" class="sim-reveal">
+            <div class="code-snippet">
+<span class="code-keyword">CALL</span> <span class="code-table">sp_generate_annual_sales_summary</span>(2018);
+            </div>
+            <p style="margin-top:4px; color:#10b981; font-weight:600;">Status: Evaluates complete 2018 month-by-month financial summary cleanly in one call.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 43 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">GitHub Packaging</span>
+        <span class="slide-number">Slide 43 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Packaging the Project on GitHub</h2>
+        <p class="slide-subtitle">Structuring your open-source repository for prospective employers</p>
+        <div class="grid-2">
+          <div class="feature-box">
+            <h4>Recommended Repository Tree</h4>
+            <div style="font-family:monospace; font-size:0.75rem; background:#f8fafc; padding:6px; border-radius:4px; line-height:1.5;">
+              brazilian-ecommerce-sql-analytics/<br/>
+              ├── README.md (Business summary &amp; findings)<br/>
+              ├── schema/<br/>
+              │&nbsp;&nbsp;&nbsp;└── create_tables.sql<br/>
+              ├── queries/<br/>
+              │&nbsp;&nbsp;&nbsp;├── 01_basic_queries.sql<br/>
+              │&nbsp;&nbsp;&nbsp;├── 02_intermediate_queries.sql<br/>
+              │&nbsp;&nbsp;&nbsp;└── 03_advanced_queries.sql<br/>
+              └── views_procedures/<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;└── master_views_and_routines.sql
+            </div>
+          </div>
+          <div class="feature-box">
+            <h4>README Best Practices</h4>
+            <ul class="bullet-list" style="font-size:0.77rem;">
+              <li>Lead with an Executive Summary of business insights.</li>
+              <li>Provide an ER diagram graphic showing the 5 tables.</li>
+              <li>Include syntax-highlighted code blocks with explanations.</li>
+              <li>Display sample output grids for key analytical queries.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 44 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Resume Ready</span>
+        <span class="slide-number">Slide 44 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Resume Bullets (Tailored for Data Analytics)</h2>
+        <p class="slide-subtitle">Framing this project to stand out on your CV</p>
+        <div class="feature-box" style="border-left:4px solid var(--primary);">
+          <h4 style="color:var(--primary-dark);">Portfolio Entry:</h4>
+          <p style="font-size:0.83rem; line-height:1.5;">
+            <strong>Brazilian E-Commerce Analytics Project | MySQL, Joins, CTEs, Window Functions</strong><br/>
+            &bull; Designed and structured a 5-table relational schema analyzing 100K+ Brazilian marketplace transactions, products, customer geographies, and payment terms.<br/>
+            &bull; Formulated 14 business queries using CTEs, <code>DENSE_RANK()</code>, <code>LAG()</code>, and moving window frames (<code>ROWS BETWEEN</code>) to evaluate monthly seasonality, category revenue shares, and annual customer retention.<br/>
+            &bull; Discovered that over 50% of orders utilize installment financing and identified top sellers and categories driving 60%+ of marketplace GMV.<br/>
+            &bull; Encapsulated multi-table pipelines into permanent MySQL Views and parameterized stored procedures to automate monthly executive financial reporting.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 45 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Technical Interview Prep</span>
+        <span class="slide-number">Slide 45 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Defending the Project in Technical Interviews</h2>
+        <p class="slide-subtitle">Anticipating interview questions and delivering structured answers</p>
+        <div class="grid-2">
+          <div class="feature-box">
+            <h4>Q: "How did you avoid payment value duplication when joining items and payments?"</h4>
+            <p style="font-size:0.8rem; color:#475569;"><em>Answer:</em> "An order can contain multiple items. Joining <code>payments</code> directly to <code>order_items</code> without aggregation can multiply payments. I aligned grains by joining payments to <code>orders</code>, or aggregating items before joining."</p>
+          </div>
+          <div class="feature-box">
+            <h4>Q: "Why use DENSE_RANK over RANK for annual top spenders?"</h4>
+            <p style="font-size:0.8rem; color:#475569;"><em>Answer:</em> "<code>DENSE_RANK()</code> ensures that if two customers tie for 2nd place, the next customer receives 3rd rank, ensuring clean Top-3 filtering without skipped positions."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 46 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Executive Summary</span>
+        <span class="slide-number">Slide 46 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Executive Summary Matrix for Stakeholders</h2>
+        <p class="slide-subtitle">Consolidating findings into actionable business takeaways</p>
+        <table class="data-table">
+          <thead><tr><th>Analytical Metric</th><th>Key SQL Finding</th><th>Strategic Business Action</th></tr></thead>
+          <tbody>
+            <tr><td>Geographic Core</td><td>São Paulo (SP) represents 40%+ of customer base</td><td>Focus regional warehousing and express shipping in Southeast</td></tr>
+            <tr><td>Financing Dependency</td><td>50%+ of orders use multi-installment splits</td><td>Maintain credit card split integrations to protect conversions</td></tr>
+            <tr><td>Growth Trajectory</td><td>Hyper-scale YoY growth from 2016 through 2018</td><td>Marketplace achieved validated national scale</td></tr>
+            <tr><td>Seller Concentration</td><td>Top sellers generate disproportionate GMV share</td><td>Provide tier incentives and priority logistics for top merchants</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Slide 47 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Pre-Flight Review</span>
+        <span class="slide-number">Slide 47 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">The Analyst's Query Audit Checklist</h2>
+        <p class="slide-subtitle">Five checks before delivering SQL outputs to management</p>
+        <ul class="bullet-list">
+          <li><strong>1. Grain Alignment:</strong> Did I confirm whether my output is at the customer, order, or item grain?</li>
+          <li><strong>2. SARGable Conditions:</strong> Did I avoid wrapping indexed columns in functions like <code>YEAR()</code> in high-volume tables?</li>
+          <li><strong>3. NULL Safety in Division:</strong> Did I wrap denominators in <code>NULLIF(..., 0)</code> when calculating percentages?</li>
+          <li><strong>4. Explicit Column Naming:</strong> Are all columns in multi-table queries prefixed with table aliases?</li>
+          <li><strong>5. Deterministic Tie-Breaking:</strong> Did I provide a secondary sort column in window functions to ensure consistent rankings?</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Slide 48 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Technical Cheat Sheet</span>
+        <span class="slide-number">Slide 48 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">The Project's Core Technical Cheat Sheet</h2>
+        <p class="slide-subtitle">Quick reference for the key SQL patterns used today</p>
+        <table class="data-table">
+          <thead><tr><th>Analytical Pattern</th><th>SQL Implementation Syntax</th></tr></thead>
+          <tbody>
+            <tr><td>Percentage Share</td><td><code>ROUND(100.0 * SUM(col) / (SELECT SUM(col) FROM tbl), 2)</code></td></tr>
+            <tr><td>Annual Top N</td><td><code>DENSE_RANK() OVER (PARTITION BY YEAR(date) ORDER BY SUM(val) DESC)</code></td></tr>
+            <tr><td>Year-over-Year Delta</td><td><code>val - LAG(val) OVER (ORDER BY year_col ASC)</code></td></tr>
+            <tr><td>Moving Window Frame</td><td><code>AVG(val) OVER (PARTITION BY id ORDER BY dt ROWS BETWEEN 1 PRECEDING AND CURRENT ROW)</code></td></tr>
+            <tr><td>Cumulative Running Sum</td><td><code>SUM(val) OVER (PARTITION BY yr ORDER BY mo ASC)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Slide 49 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Project Synthesis</span>
+        <span class="slide-number">Slide 49 / 50</span>
+      </div>
+      <div class="slide-body">
+        <h2 class="slide-title">Project Synthesis: Complete Portfolio Artifact</h2>
+        <p class="slide-subtitle">Everything you accomplished across this project</p>
+        <ul class="bullet-list">
+          <li><strong>Real E-Commerce Relational Model:</strong> Handled 5 interconnected tables mirroring real enterprise marketplace operations.</li>
+          <li><strong>14 Strategic Inquiries Solved:</strong> Spanned basic deduplication, multi-table joins, CTE proportions, moving averages, and YoY growth.</li>
+          <li><strong>Clean Architecture:</strong> Applied SARGable date filtering, grain-safe joins, and partition-based window functions.</li>
+          <li><strong>Enterprise Automation:</strong> Built permanent virtual Views and parameterized Stored Procedures.</li>
+          <li><strong>Interview Ready:</strong> Packaged complete GitHub documentation, resume bullet points, and defense answers!</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Slide 50 -->
+    <div class="slide">
+      <div class="slide-header">
+        <span class="topic-tag">Looking Forward</span>
+        <span class="slide-number">Slide 50 / 50</span>
+      </div>
+      <div class="slide-body" style="text-align:center; align-items:center;">
+        <h2 style="font-size: 2.1rem; color: #059669; margin-bottom: 6px;">Portfolio Project Complete!</h2>
+        <p style="font-size: 1.1rem; color: #334155; max-width: 800px;">
+          Outstanding work! You have delivered a complete, 14-problem end-to-end SQL analytics project on real Brazilian e-commerce data that proves your ability to translate commercial challenges into clean, high-performance database code.
+        </p>
+        <div style="margin-top: 14px; background: #ecfdf5; border: 2px dashed #10b981; padding: 14px; border-radius: 10px; max-width: 700px; text-align: left;">
+          <h3 style="color: #059669; margin-bottom: 4px;">Next Steps: Add to Your Career Portfolio</h3>
+          <p style="color: #475569; font-size: 0.9rem;">
+            Commit your SQL scripts to GitHub, publish your repository README with the executive summary table, and add this project directly to your resume and LinkedIn profile!
+          </p>
+        </div>
+        <p style="margin-top: 10px; font-weight: 700; color: #1e293b;">Keep querying, keep building, and see you in the next masterclass session!</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="controls">
+    <button class="nav-btn" id="prev-btn" onclick="prevSlide()" disabled>&larr; Previous</button>
+    <div style="display:flex; flex-direction:column; align-items:center;">
+      <span id="counter">Slide 1 / 50</span>
+      <span class="key-tip">Use Arrow Keys (&larr; / &rarr;) or Spacebar to navigate</span>
+    </div>
+    <button class="nav-btn" id="next-btn" onclick="nextSlide()">Next &rarr;</button>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const counter = document.getElementById('counter');
+    const progressBar = document.getElementById('progress-bar');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    function updateDeck() {
+      slides.forEach((slide, index) => {
+        slide.classList.remove('active');
+        if (index === currentSlide) {
+          slide.classList.add('active');
+        }
+      });
+      counter.innerText = `Slide ${currentSlide + 1} / ${totalSlides}`;
+      progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === totalSlides - 1;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateDeck();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateDeck();
+      }
+    }
+
+    function toggleSim(id) {
+      const panel = document.getElementById(id);
+      if (panel.style.display === 'block') {
+        panel.style.display = 'none';
+      } else {
+        panel.style.display = 'block';
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    });
+  </script>
+</body>
+</html>
