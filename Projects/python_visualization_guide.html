@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A responsive interactive guide comparing Matplotlib pyplot, Seaborn figure-level, and Seaborn axes-level plotting across 20 visualization concepts.">
+<title>Python Visualization Lab — Matplotlib & Seaborn</title>
+<style>
+:root{--bg:#f5f7fb;--surface:#fff;--ink:#162033;--muted:#65728a;--line:#e3e9f2;--primary:#5268f4;--primary2:#7b56db;--teal:#11a9a0;--soft:#eef1ff;--code:#111827;--shadow:0 12px 35px rgba(28,44,82,.07);--radius:18px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}a{color:inherit;text-decoration:none}button,input{font:inherit}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 28px}.brand{display:flex;gap:11px;align-items:center;font-weight:800;letter-spacing:-.3px}.brand-mark{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--primary),var(--primary2));color:white;display:grid;place-items:center;font-size:17px}.top-actions{display:flex;gap:10px;align-items:center}.search{width:min(270px,34vw);padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:#f8faff;outline:none}.search:focus{border-color:var(--primary);box-shadow:0 0 0 3px #5268f41c}.pill{font-size:12px;font-weight:700;padding:6px 10px;background:var(--soft);color:var(--primary);border-radius:999px}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);max-width:1440px;margin:auto}.sidebar{position:sticky;top:66px;height:calc(100vh - 66px);overflow:auto;padding:26px 18px 30px;border-right:1px solid var(--line);background:rgba(255,255,255,.48)}.side-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.1px;color:#8b97aa;padding:0 10px 9px}.navlist{display:flex;flex-direction:column;gap:3px}.navlist a{font-size:13px;color:#58667d;padding:8px 10px;border-radius:10px;display:block;transition:.15s}.navlist a:hover,.navlist a.active{background:#eaf0ff;color:#334fd6;font-weight:700}.navlist .sub{padding-left:22px;font-size:12px}.main{padding:34px clamp(18px,4vw,58px) 80px;min-width:0}.hero{background:linear-gradient(125deg,#192b55,#4058d8 62%,#8c61d7);border-radius:26px;color:#fff;padding:clamp(25px,5vw,52px);position:relative;overflow:hidden;box-shadow:var(--shadow)}.hero:after{content:"";position:absolute;width:340px;height:340px;border:1px solid #ffffff24;border-radius:50%;right:-95px;top:-130px;box-shadow:0 0 0 45px #ffffff09,0 0 0 90px #ffffff06}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;font-weight:800;color:#c9d5ff}.hero h1{font-size:clamp(28px,4.4vw,48px);line-height:1.12;letter-spacing:-1.5px;margin:12px 0 15px;max-width:760px}.hero p{color:#e4e9ff;max-width:720px;font-size:16px;margin:0}.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.hero-tags span{border:1px solid #ffffff35;background:#ffffff12;border-radius:999px;padding:6px 11px;font-size:12px}.hero-stats{display:flex;flex-wrap:wrap;gap:22px;margin-top:28px}.hero-stat strong{display:block;font-size:23px}.hero-stat span{color:#cbd5ff;font-size:12px}
+section{margin-top:38px;scroll-margin-top:90px}.section-head{margin-bottom:17px}.section-head h2{font-size:25px;line-height:1.2;letter-spacing:-.6px;margin:0 0 7px}.section-head p{margin:0;color:var(--muted);max-width:850px}.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-bottom:16px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.concept-card{padding:19px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:var(--shadow)}.concept-card h3{margin:8px 0 5px;font-size:16px}.concept-card p{margin:0;color:var(--muted);font-size:13px}.concept-card .icon{font-size:23px}.mini-tag{display:inline-block;background:#f0f3ff;color:#495bd4;padding:3px 8px;border-radius:7px;font-size:11px;font-weight:700;margin-top:9px}
+.callout{border-radius:14px;padding:15px 17px;background:#edf5ff;border-left:4px solid #5c78ee;margin:15px 0;color:#2c466e}.callout strong{color:#1b3154}.callout.warn{background:#fff6e7;border-color:#e9a33d;color:#715323}.callout.good{background:#eaf9f4;border-color:#18a98f;color:#276450}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:white;margin:15px 0}table{border-collapse:collapse;width:100%;min-width:700px;font-size:13px}th,td{padding:12px 13px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{background:#f5f7fc;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#66738b}tr:last-child td{border-bottom:0}td:first-child{font-weight:700;color:#25334d}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#3048c8;background:#eef1ff;border-radius:5px;padding:2px 5px;font-size:.92em}.codegrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}.codebox{border:1px solid #28344c;border-radius:14px;overflow:hidden;background:var(--code);color:#dbe4f0;min-width:0}.code-head{padding:9px 12px;background:#1c2638;border-bottom:1px solid #2c3950;display:flex;justify-content:space-between;align-items:center;color:#d4deef;font-size:12px;font-weight:700}.codebox pre{margin:0;padding:14px;overflow:auto;font-size:12px;line-height:1.6;white-space:pre;color:#d8e3f4}.codebox pre code{background:none;color:inherit;padding:0;font-size:inherit}.copy{border:0;background:#33415b;color:#dbe6f5;border-radius:7px;padding:4px 8px;font-size:11px;cursor:pointer}.copy:hover{background:#4c5f80}.paramlist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}.param{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fbfcff}.param code{display:inline-block;margin-bottom:4px}.param span{display:block;color:var(--muted);font-size:12px}.topic{padding-top:22px;border-top:1px solid var(--line)}.topic:first-child{border-top:0}.topic h3{font-size:20px;margin:0 0 6px;letter-spacing:-.4px}.topic .lead{color:var(--muted);margin:0 0 12px}.topic-number{display:inline-flex;width:27px;height:27px;align-items:center;justify-content:center;background:#e9edff;color:#455ce3;border-radius:9px;font-size:12px;font-weight:800;margin-right:8px;vertical-align:2px}.visual{background:linear-gradient(135deg,#f4f7ff,#f7f4ff);border:1px solid #e2e7ff;border-radius:14px;padding:15px;margin:12px 0}.visual svg{width:100%;height:auto;max-height:230px;display:block}.muted{color:var(--muted)}.badge{font-size:11px;padding:4px 8px;border-radius:8px;background:#eaf8f4;color:#23816a;font-weight:700}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.footer{margin-top:50px;border-top:1px solid var(--line);padding:20px 0;color:var(--muted);font-size:12px}.backtop{position:fixed;right:22px;bottom:20px;border:0;background:var(--primary);color:white;border-radius:12px;padding:10px 14px;box-shadow:0 8px 25px #5268f444;cursor:pointer;display:none}.empty{display:none;padding:20px;text-align:center;color:var(--muted)}.topic[hidden],.navlist a[hidden]{display:none!important}
+@media(max-width:1050px){.layout{grid-template-columns:205px minmax(0,1fr)}.codegrid{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}.main{padding-left:25px;padding-right:25px}}
+@media(max-width:700px){.topbar{padding:0 14px}.brand-text{display:none}.search{width:48vw}.layout{display:block}.sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:12px 14px;background:#fff}.side-label{padding-bottom:5px}.navlist{display:flex;flex-direction:row;overflow-x:auto;gap:5px;padding-bottom:4px}.navlist a{white-space:nowrap;font-size:12px;padding:7px 9px}.navlist .sub{padding-left:9px}.main{padding:18px 14px 60px}.hero{border-radius:20px}.grid3,.two-col,.paramlist{grid-template-columns:1fr}.card{padding:16px}.section-head h2{font-size:22px}.topic h3{font-size:18px}.table-wrap table{min-width:650px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#top"><span class="brand-mark">📊</span><span class="brand-text">Python Visualization Lab</span></a>
+  <div class="top-actions"><input class="search" id="search" type="search" placeholder="Search this guide… (e.g. heatmap)" aria-label="Search guide"><span class="pill">20 topics</span></div>
+</header>
+<div class="layout" id="top">
+<aside class="sidebar">
+  <div class="side-label">Learning path</div>
+  <nav class="navlist" id="navlist">
+    <a href="#overview">Overview</a><a href="#levels">Three plotting levels</a><a href="#comparison">Master comparison</a>
+    <a href="#topic-1">01 · Figure size</a><a href="#topic-2">02 · Text & KPI</a><a href="#topic-3">03 · Title</a><a href="#topic-4">04 · X label</a><a href="#topic-5">05 · Y label</a><a href="#topic-6">06 · X ticks</a><a href="#topic-7">07 · Y ticks</a><a href="#topic-8">08 · Data types</a><a href="#topic-9">09 · Range & scale</a>
+    <a href="#topic-10">10 · Bar plot</a><a href="#topic-11">11 · Horizontal bar</a><a href="#topic-12">12 · Line chart</a><a href="#topic-13">13 · Scatter plot</a><a href="#topic-14">14 · Pie chart</a><a href="#topic-15">15 · Histogram</a><a href="#topic-16">16 · Box plot</a><a href="#topic-17">17 · Area chart</a><a href="#topic-18">18 · Count plot</a><a href="#topic-19">19 · Trend line</a><a href="#topic-20">20 · Heatmap</a>
+    <a href="#workflow">Recommended workflow</a><a href="#glossary">Mini glossary</a>
+  </nav>
+</aside>
+<main class="main">
+<div class="hero">
+  <div class="eyebrow">Interactive reference · Data Analytics</div>
+  <h1>Visualize data.<br>Understand the syntax.<br>Tell the story.</h1>
+  <p>A practical, explanatory guide to Matplotlib <code>pyplot</code>, Seaborn figure-level charts, and Seaborn axes-level charts—how they work, how their syntax differs, and when to use each.</p>
+  <div class="hero-tags"><span>Matplotlib</span><span>Seaborn</span><span>20 concepts</span><span>Code-first learning</span></div>
+  <div class="hero-stats"><div class="hero-stat"><strong>3</strong><span>plotting approaches</span></div><div class="hero-stat"><strong>20</strong><span>concepts explained</span></div><div class="hero-stat"><strong>1</strong><span>consistent example dataset</span></div></div>
+</div>
+
+<section id="overview">
+<div class="section-head"><h2>Start with the big picture</h2><p>These are not three competing visualization libraries. Seaborn is built on Matplotlib; the difference is the level of abstraction and the amount of control you want.</p></div>
+<div class="grid3">
+ <div class="concept-card"><div class="icon">🧰</div><h3>Matplotlib pyplot</h3><p>Low-level, flexible plotting commands. You explicitly control the figure, axes, labels, ticks, and plot elements.</p><span class="mini-tag">Fine-grained control</span></div>
+ <div class="concept-card"><div class="icon">🧭</div><h3>Seaborn Figure-level</h3><p>High-level functions create and manage a chart or chart grid. Faceting is a major strength for comparing groups.</p><span class="mini-tag">Layout & faceting</span></div>
+ <div class="concept-card"><div class="icon">🎯</div><h3>Seaborn Axes-level</h3><p>Statistical chart functions draw on one Matplotlib Axes. Ideal for custom layouts and combining several charts.</p><span class="mini-tag">One axes at a time</span></div>
+</div>
+<div class="callout"><strong>Teaching mindset:</strong> First understand what the chart should communicate. Then choose a plotting interface. Syntax is easier to remember when it solves a visual problem.</div>
+</section>
+<section id="levels">
+<div class="section-head"><h2>Figure-level vs Axes-level</h2><p>The most important Seaborn distinction: who creates and manages the layout, and where is the chart drawn?</p></div>
+<div class="two-col">
+<div class="card"><h3>Figure-level = Seaborn manages the canvas</h3><p>Typically returns a grid object such as <code>FacetGrid</code> or <code>PairGrid</code> (or specialized grid classes). It creates its own figure and axes and is built to support faceting.</p><pre><code>sns.relplot(data=df,
+    x="Month", y="Sales",
+    kind="line", col="Region",
+    height=4, aspect=1.2)</code></pre><p class="muted">Examples: <code>relplot</code>, <code>catplot</code>, <code>displot</code>, <code>lmplot</code>, <code>jointplot</code>, <code>pairplot</code>.</p></div>
+<div class="card"><h3>Axes-level = plot inside a chosen axes</h3><p>Returns or uses a Matplotlib <code>Axes</code>. You can pass <code>ax=</code> to control where the plot appears and combine charts in a dashboard.</p><pre><code>fig, ax = plt.subplots(figsize=(7,4))
+sns.lineplot(data=df,
+    x="Month", y="Sales",
+    hue="Region", ax=ax)
+ax.set_title("Monthly Sales")</code></pre><p class="muted">Examples: <code>barplot</code>, <code>countplot</code>, <code>lineplot</code>, <code>scatterplot</code>, <code>histplot</code>, <code>boxplot</code>, <code>regplot</code>, <code>heatmap</code>.</p></div>
+</div>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>Matplotlib pyplot</th><th>Seaborn figure-level</th><th>Seaborn axes-level</th></tr></thead><tbody>
+<tr><td>Primary object</td><td>Pyplot stateful interface</td><td>Grid / figure object</td><td>Matplotlib Axes</td></tr><tr><td>Creates layout?</td><td>You usually create it</td><td>Yes, managed for you</td><td>Usually create with <code>plt.subplots</code></td></tr><tr><td>Faceting</td><td>Manual subplots</td><td>Built-in row/column facets</td><td>Manual subplot composition</td></tr><tr><td>DataFrame semantics</td><td>Often pass arrays</td><td>Strong semantic mapping</td><td>Strong semantic mapping</td></tr><tr><td>Best for</td><td>Custom visuals, annotations, exact styling</td><td>Fast exploration, group comparisons, small multiples</td><td>Single charts, custom dashboards</td></tr><tr><td>Axes parameter</td><td>Stateful or object-oriented methods</td><td>Generally no <code>ax=</code></td><td>Usually accepts <code>ax=</code></td></tr>
+</tbody></table></div>
+<div class="callout warn"><strong>Return-object tip:</strong> Figure-level functions commonly return grid objects (e.g., <code>FacetGrid</code>, <code>PairGrid</code>, <code>JointGrid</code>), not a single Axes. Axes-level functions return an Axes or draw on the Axes you supplied. This affects how you set titles and labels afterward.</div>
+</section>
+<section id="comparison">
+<div class="section-head"><h2>Quick syntax comparison</h2><p>Keep this table handy when you know the chart type but forget which function to call.</p></div>
+<div class="table-wrap"><table><thead><tr><th>Chart</th><th>Matplotlib</th><th>Figure-level Seaborn</th><th>Axes-level Seaborn</th></tr></thead><tbody>
+<tr><td>Bar</td><td><code>plt.bar(x, height)</code></td><td><code>sns.catplot(kind="bar", ...)</code></td><td><code>sns.barplot(...)</code></td></tr><tr><td>Horizontal bar</td><td><code>plt.barh(y, width)</code></td><td><code>sns.catplot(kind="bar", ...)</code> with swapped roles</td><td><code>sns.barplot(y=cat, x=num)</code></td></tr><tr><td>Line</td><td><code>plt.plot(x, y)</code></td><td><code>sns.relplot(kind="line", ...)</code></td><td><code>sns.lineplot(...)</code></td></tr><tr><td>Scatter</td><td><code>plt.scatter(x, y)</code></td><td><code>sns.relplot(kind="scatter", ...)</code></td><td><code>sns.scatterplot(...)</code></td></tr><tr><td>Pie</td><td><code>plt.pie(values)</code></td><td>No built-in figure-level pie</td><td>Use <code>ax.pie()</code> (Matplotlib)</td></tr><tr><td>Histogram</td><td><code>plt.hist(x)</code></td><td><code>sns.displot(kind="hist", ...)</code></td><td><code>sns.histplot(...)</code></td></tr><tr><td>Box</td><td><code>plt.boxplot(x)</code></td><td><code>sns.catplot(kind="box", ...)</code></td><td><code>sns.boxplot(...)</code></td></tr><tr><td>Area</td><td><code>plt.fill_between()</code> / <code>plt.stackplot()</code></td><td>No native area function</td><td>Use <code>ax.fill_between()</code></td></tr><tr><td>Count</td><td>Count first, then <code>plt.bar()</code></td><td><code>sns.catplot(kind="count", ...)</code></td><td><code>sns.countplot(...)</code></td></tr><tr><td>Trend / regression</td><td><code>np.polyfit()</code> + <code>plt.plot()</code></td><td><code>sns.lmplot(...)</code></td><td><code>sns.regplot(...)</code></td></tr><tr><td>Heatmap</td><td><code>plt.imshow()</code></td><td>No native figure-level heatmap</td><td><code>sns.heatmap(...)</code></td></tr>
+</tbody></table></div>
+</section>
+
+<section id="topic-1" class="topic">
+<h3><span class="topic-number">01</span>Figure size adjustment</h3><p class="lead">Controls the canvas dimensions—not bar thickness, data range, or font size. Matplotlib size is in inches.</p>
+<div class="paramlist"><div class="param"><code>figsize=(width, height)</code><span>Matplotlib figure width and height, in inches.</span></div><div class="param"><code>dpi</code><span>Dots per inch; affects raster resolution.</span></div><div class="param"><code>height</code><span>Seaborn figure-level height in inches.</span></div><div class="param"><code>aspect</code><span>Figure-level width-to-height ratio.</span></div></div>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.figure(figsize=(10, 5), dpi=120)
+plt.bar(categories, values)</nplt.show()</code></pre></div><div class="codebox"><div class="code-head">Figure-level</div><pre><code>sns.catplot(data=df,
+    x="Category", y="Value",
+    kind="bar", height=5,
+    aspect=1.6)</code></pre></div><div class="codebox"><div class="code-head">Axes-level</div><pre><code>fig, ax = plt.subplots(
+    figsize=(10, 5), dpi=120)
+sns.barplot(data=df,
+    x="Category", y="Value", ax=ax)</code></pre></div></div>
+<div class="callout good">Rule of thumb: figure-level width is approximately <code>height × aspect</code>. Axes-level sizing comes from the Matplotlib figure you create.</div>
+</section>
+<section id="topic-2" class="topic">
+<h3><span class="topic-number">02</span>Text, annotation & KPI card design</h3><p class="lead">Add custom text anywhere in a chart. KPI cards often use axes-relative coordinates, hide axes, and layer metric, label, and comparison text.</p>
+<div class="paramlist"><div class="param"><code>ax.text(x, y, text)</code><span>Place text at a coordinate.</span></div><div class="param"><code>transform=ax.transAxes</code><span>Use relative axes coordinates from 0 to 1.</span></div><div class="param"><code>ha / va</code><span>Horizontal and vertical alignment.</span></div><div class="param"><code>bbox</code><span>Draw a styled background box behind text.</span></div></div>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.text(0.5, 0.5, "₹12.5L",
+    fontsize=24, weight="bold",
+    ha="center", va="center",
+    bbox=dict(boxstyle="round",
+      facecolor="white", pad=.5))</code></pre></div><div class="codebox"><div class="code-head">Figure-level</div><pre><code>g = sns.catplot(data=df,
+    x="Category", y="Value",
+    kind="bar")
+g.figure.text(.5, .98,
+    "Sales Overview", ha="center")</code></pre></div><div class="codebox"><div class="code-head">Axes-level</div><pre><code>ax.axis("off")
+ax.text(.5, .7, "TOTAL SALES",
+    transform=ax.transAxes,
+    ha="center")
+ax.text(.5, .4, "₹12.5L",
+    transform=ax.transAxes,
+    fontsize=25, weight="bold")</code></pre></div></div>
+<div class="callout">For dashboard KPI cards: create a blank Axes, hide the axes with <code>ax.axis("off")</code>, and use <code>transform=ax.transAxes</code> so your text placement is proportional and independent of data limits.</div>
+</section>
+<section id="topic-3" class="topic">
+<h3><span class="topic-number">03</span>Chart title</h3><p class="lead">A chart title describes the insight or subject. A figure-level title describes the whole grid; an axes title describes one plot.</p>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.title("Revenue by Month",
+    fontsize=16, weight="bold",
+    loc="center", pad=12)</code></pre></div><div class="codebox"><div class="code-head">Figure-level</div><pre><code>g = sns.relplot(data=df,
+    x="Month", y="Sales",
+    kind="line", col="Region")
+g.figure.suptitle("Regional trends")
+g.set_titles("Region: {col_name}")</code></pre></div><div class="codebox"><div class="code-head">Axes-level</div><pre><code>ax.set_title("Revenue by Month",
+    fontsize=16, weight="bold",
+    loc="left", pad=12)</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>loc</code><span>left, center, right</span></div><div class="param"><code>pad</code><span>Space between title and axes</span></div><div class="param"><code>fontsize / size</code><span>Title font size</span></div><div class="param"><code>weight / fontweight</code><span>Normal, bold, etc.</span></div></div>
+</section>
+<section id="topic-4" class="topic">
+<h3><span class="topic-number">04</span>X-axis label</h3><p class="lead">Names the variable represented horizontally—for example, Month, Product, Age, or Distance.</p>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.xlabel("Month", fontsize=12,
+    labelpad=8, weight="bold")</code></pre></div><div class="codebox"><div class="code-head">Figure-level</div><pre><code>g.set_axis_labels(
+    "Month", "Revenue ($)")</code></pre></div><div class="codebox"><div class="code-head">Axes-level</div><pre><code>ax.set_xlabel("Month",
+    fontsize=12, labelpad=8,
+    weight="bold")</code></pre></div></div>
+<p class="muted"><strong>Parameters:</strong> <code>labelpad</code> controls distance from the axis; <code>fontsize</code> changes text size; <code>color</code> and <code>fontweight</code> change appearance.</p>
+</section>
+<section id="topic-5" class="topic">
+<h3><span class="topic-number">05</span>Y-axis label</h3><p class="lead">Names the vertical measurement—such as Revenue, Count, Temperature, or Salary. Units are helpful.</p>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.ylabel("Revenue (₹)",
+    fontsize=12, labelpad=10)</code></pre></div><div class="codebox"><div class="code-head">Figure-level</div><pre><code>g.set_axis_labels(
+    "Month", "Revenue (₹)")</code></pre></div><div class="codebox"><div class="code-head">Axes-level</div><pre><code>ax.set_ylabel("Revenue (₹)",
+    fontsize=12, labelpad=10)</code></pre></div></div>
+<div class="callout good">Label the metric and units when relevant, e.g. <strong>Revenue (₹ thousands)</strong>, not simply “Revenue”.</div>
+</section>
+<section id="topic-6" class="topic">
+<h3><span class="topic-number">06</span>X-axis ticks and tick labels</h3><p class="lead">Ticks are marks at specific positions. Tick labels are the text shown beside those marks. Rotate or thin crowded labels for readability.</p>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.xticks([0,1,2,3],
+    ["Jan","Feb","Mar","Apr"],
+    rotation=45, fontsize=10)</code></pre></div><div class="codebox"><div class="code-head">Figure-level</div><pre><code>g.set_xticklabels(rotation=45)
+# Grid object; may affect all
+# facets depending on method.</code></pre></div><div class="codebox"><div class="code-head">Axes-level</div><pre><code>ax.set_xticks([0,1,2,3])
+ax.set_xticklabels(
+    ["Jan","Feb","Mar","Apr"],
+    rotation=45, ha="right")
+ax.tick_params(axis="x", pad=5)</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>ticks</code><span>Positions where marks appear.</span></div><div class="param"><code>labels</code><span>Text corresponding to tick positions.</span></div><div class="param"><code>rotation</code><span>Rotate labels to reduce overlap.</span></div><div class="param"><code>tick_params()</code><span>Length, width, direction, padding, label styling.</span></div></div>
+</section>
+<section id="topic-7" class="topic">
+<h3><span class="topic-number">07</span>Y-axis ticks and formatting</h3><p class="lead">Choose meaningful intervals and format numeric values—currency, percentages, thousands separators, or decimals.</p>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.yticks([0, 25, 50, 75, 100])
+# Format values as currency:
+from matplotlib.ticker import FuncFormatter
+plt.gca().yaxis.set_major_formatter(
+    FuncFormatter(lambda v, pos: f"₹{v:,.0f}"))</code></pre></div><div class="codebox"><div class="code-head">Figure-level</div><pre><code>g.set(yticks=[0, 25, 50, 75, 100])
+# Use the underlying axes for
+# advanced tick formatters.</code></pre></div><div class="codebox"><div class="code-head">Axes-level</div><pre><code>ax.set_yticks([0, 25, 50, 75, 100])
+ax.yaxis.set_major_formatter(
+    FuncFormatter(lambda v, pos: f"₹{v:,.0f}"))</code></pre></div></div>
+<p><strong>Formatter helpers:</strong> <code>PercentFormatter</code> (percent), <code>MultipleLocator</code> (regular intervals), <code>StrMethodFormatter</code> (format strings), <code>FuncFormatter</code> (custom function).</p>
+</section>
+<section id="topic-8" class="topic">
+<h3><span class="topic-number">08</span>Control data types on X and Y axes</h3><p class="lead">Plotting behavior changes with the type of data: continuous numeric, category, date/time, or boolean. Seaborn usually infers the roles from DataFrame columns; Matplotlib can also handle categories and dates but is less semantic.</p>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>Example</th><th>Typical visual behavior</th><th>How to prepare</th></tr></thead><tbody><tr><td>Numeric integer/float</td><td>Age, sales, score</td><td>Continuous scale</td><td><code>pd.to_numeric()</code></td></tr><tr><td>Categorical/string</td><td>Region, course, gender</td><td>Discrete groups</td><td><code>astype("category")</code> if useful</td></tr><tr><td>Datetime</td><td>Order date</td><td>Time scale</td><td><code>pd.to_datetime()</code></td></tr><tr><td>Boolean</td><td>Yes/No, True/False</td><td>Two groups</td><td>Keep bool or map to labels</td></tr></tbody></table></div>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>df["date"] = pd.to_datetime(df["date"])
+df["sales"] = pd.to_numeric(df["sales"])
+plt.plot(df["date"], df["sales"])</code></pre></div><div class="codebox"><div class="code-head">Figure-level</div><pre><code>sns.relplot(data=df,
+    x="date", y="sales",
+    kind="line", hue="region")
+# Data types and semantics inferred</code></pre></div><div class="codebox"><div class="code-head">Axes-level</div><pre><code>sns.scatterplot(data=df,
+    x="experience", y="salary",
+    hue="department", ax=ax)
+# Semantic mappings: hue, size, style</code></pre></div></div>
+<div class="callout warn"><strong>Common pitfall:</strong> numeric-looking strings such as <code>"2"</code>, <code>"10"</code>, <code>"100"</code> can be interpreted as categories. Convert to numeric if they represent a quantity. If numeric values are category codes, explicitly treat them as categorical.</div>
+</section>
+<section id="topic-9" class="topic">
+<h3><span class="topic-number">09</span>Axis range, limits and scale</h3><p class="lead">Range determines which values are visible. Scale determines how values are spaced. They are different controls.</p>
+<div class="two-col"><div class="card"><h3>Range / limits</h3><p>Zoom or frame the plot by setting the visible minimum and maximum.</p><pre><code>plt.xlim(0, 12)
+plt.ylim(0, 1000)
+
+# Axes object
+ax.set_xlim(0, 12)
+ax.set_ylim(0, 1000)</code></pre></div><div class="card"><h3>Scale</h3><p>Choose linear, logarithmic, or other nonlinear spacing when appropriate.</p><pre><code>plt.yscale("linear")
+plt.yscale("log")
+
+# Axes object
+ax.set_yscale("symlog")</code></pre></div></div>
+<div class="table-wrap"><table><thead><tr><th>Scale</th><th>Meaning / use</th><th>Important consideration</th></tr></thead><tbody><tr><td><code>linear</code></td><td>Equal value differences have equal distances.</td><td>Default for most charts.</td></tr><tr><td><code>log</code></td><td>Multiplicative differences are emphasized equally.</td><td>Values must be positive.</td></tr><tr><td><code>symlog</code></td><td>Log-like outside a linear region; handles negatives.</td><td>Set a linear threshold when needed.</td></tr><tr><td><code>logit</code></td><td>Probability-like values between 0 and 1.</td><td>Endpoints 0 and 1 need special care.</td></tr></tbody></table></div>
+<p class="muted">Figure-level: use <code>g.set(xlim=..., ylim=...)</code> for simple limits; for advanced scale control, loop through <code>g.axes.flat</code> or use its axes. Axes-level: use <code>ax.set_xlim()</code>, <code>ax.set_ylim()</code>, and <code>ax.set_xscale()</code>/<code>ax.set_yscale()</code>.</p>
+</section>
+<section id="topic-10" class="topic">
+<h3><span class="topic-number">10</span>Bar plot / vertical bars</h3><p class="lead">Compare a numeric value across discrete categories. Matplotlib plots the values you provide; Seaborn <code>barplot</code> usually estimates (default mean) for each category and may show uncertainty intervals.</p>
+<div class="visual"><svg viewBox="0 0 640 230" role="img" aria-label="Vertical bars comparing four categories"><path d="M45 20 V195 H620" fill="none" stroke="#8b98ad" stroke-width="1.5"/><g fill="#6178f2"><rect x="90" y="112" width="70" height="83" rx="4"/><rect x="220" y="68" width="70" height="127" rx="4"/><rect x="350" y="132" width="70" height="63" rx="4"/><rect x="480" y="45" width="70" height="150" rx="4"/></g><g fill="#526178" font-size="13" text-anchor="middle"><text x="125" y="215">A</text><text x="255" y="215">B</text><text x="385" y="215">C</text><text x="515" y="215">D</text></g><g stroke="#e1e7f1" stroke-dasharray="4 4"><path d="M45 145 H620"/><path d="M45 95 H620"/><path d="M45 45 H620"/></g></svg><p class="muted">Concept: categories on X; measured values on Y.</p></div>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib · plt.bar</div><pre><code>plt.bar(categories, values,
+    width=.7, color="steelblue",
+    edgecolor="white", alpha=.9)</code></pre></div><div class="codebox"><div class="code-head">Figure-level · catplot</div><pre><code>sns.catplot(data=df,
+    x="Category", y="Sales",
+    kind="bar", height=4,
+    aspect=1.4, errorbar=None)</code></pre></div><div class="codebox"><div class="code-head">Axes-level · barplot</div><pre><code>sns.barplot(data=df,
+    x="Category", y="Sales",
+    estimator="mean",
+    errorbar=("ci", 95), ax=ax)</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>width</code><span>Matplotlib bar width.</span></div><div class="param"><code>color / palette</code><span>Fill color or color mapping.</span></div><div class="param"><code>estimator</code><span>Seaborn aggregation (mean by default).</span></div><div class="param"><code>errorbar</code><span>Uncertainty interval; use None to hide.</span></div><div class="param"><code>hue</code><span>Split category bars by a second group.</span></div><div class="param"><code>order</code><span>Control category order.</span></div></div>
+<div class="callout warn"><strong>Do not confuse barplot and countplot:</strong> barplot summarizes a numeric variable by category (usually mean); countplot counts how many rows fall into each category.</div>
+</section>
+<section id="topic-11" class="topic">
+<h3><span class="topic-number">11</span>Horizontal bar plot</h3><p class="lead">A bar chart turned sideways. Especially helpful for long category labels, ranked lists, and Top-N comparisons.</p>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib · barh</div><pre><code>plt.barh(categories, values,
+    height=.65, color="coral")
+plt.gca().invert_yaxis() # optional:
+# highest rank at top, if sorted</code></pre></div><div class="codebox"><div class="code-head">Figure-level</div><pre><code>sns.catplot(data=df,
+    y="Category", x="Sales",
+    kind="bar", aspect=1.5)
+# Swap category and value axes</code></pre></div><div class="codebox"><div class="code-head">Axes-level</div><pre><code>sns.barplot(data=df,
+    y="Category", x="Sales",
+    orient="h", ax=ax)
+# Orientation may be inferred</code></pre></div></div>
+<p><strong>Parameters:</strong> Matplotlib <code>barh(y, width, height, left)</code>; Seaborn use category on <code>y</code>, numeric value on <code>x</code>, and optionally <code>order</code> for ranking.</p>
+</section>
+<section id="topic-12" class="topic">
+<h3><span class="topic-number">12</span>Line chart</h3><p class="lead">Shows change over an ordered dimension—often time. It helps spot trend, peaks, dips, seasonality, and compare series.</p>
+<div class="visual"><svg viewBox="0 0 640 230" role="img" aria-label="A line chart showing a rising trend with fluctuation"><path d="M45 20 V195 H620" fill="none" stroke="#8b98ad"/><path d="M60 168 L145 144 L230 151 L315 104 L400 120 L485 65 L570 40" fill="none" stroke="#11a9a0" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><g fill="#11a9a0"><circle cx="60" cy="168" r="5"/><circle cx="145" cy="144" r="5"/><circle cx="230" cy="151" r="5"/><circle cx="315" cy="104" r="5"/><circle cx="400" cy="120" r="5"/><circle cx="485" cy="65" r="5"/><circle cx="570" cy="40" r="5"/></g><g stroke="#e1e7f1" stroke-dasharray="4 4"><path d="M45 145 H620"/><path d="M45 95 H620"/><path d="M45 45 H620"/></g></svg></div>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.plot(x, y, color="teal",
+    linewidth=2, marker="o",
+    linestyle="-")</code></pre></div><div class="codebox"><div class="code-head">Figure-level · relplot</div><pre><code>sns.relplot(data=df,
+    x="Date", y="Sales",
+    kind="line", hue="Region",
+    style="Region", markers=True)</code></pre></div><div class="codebox"><div class="code-head">Axes-level · lineplot</div><pre><code>sns.lineplot(data=df,
+    x="Date", y="Sales",
+    hue="Region", markers=True,
+    estimator="mean", errorbar=None,
+    ax=ax)</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>linewidth / lw</code><span>Line thickness.</span></div><div class="param"><code>marker</code><span>Marker symbol at observations.</span></div><div class="param"><code>linestyle</code><span>Solid, dashed, dotted etc.</span></div><div class="param"><code>hue / style</code><span>Group colors and line/marker styles.</span></div><div class="param"><code>estimator</code><span>Seaborn aggregation when repeated x-values occur.</span></div><div class="param"><code>errorbar</code><span>Uncertainty around estimate.</span></div></div>
+<div class="callout">A line implies an ordered relationship. Connecting unordered categories may mislead; if category order matters, set it explicitly.</div>
+</section>
+<section id="topic-13" class="topic">
+<h3><span class="topic-number">13</span>Scatter plot</h3><p class="lead">Displays individual observations as dots to explore relationships, clusters, spread, and outliers between two numeric variables.</p>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.scatter(x, y, s=60,
+    c="teal", marker="o",
+    alpha=.7, edgecolors="white")</code></pre></div><div class="codebox"><div class="code-head">Figure-level · relplot</div><pre><code>sns.relplot(data=df,
+    x="Experience", y="Salary",
+    kind="scatter", hue="Team",
+    size="Sales", style="Team")</code></pre></div><div class="codebox"><div class="code-head">Axes-level · scatterplot</div><pre><code>sns.scatterplot(data=df,
+    x="Experience", y="Salary",
+    hue="Team", size="Sales",
+    style="Team", alpha=.7, ax=ax)</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>s / size</code><span>Marker size (Matplotlib uses area in points²).</span></div><div class="param"><code>c / hue</code><span>Color or color grouping.</span></div><div class="param"><code>marker / style</code><span>Shape coding.</span></div><div class="param"><code>alpha</code><span>Transparency helps with overplotting.</span></div><div class="param"><code>sizes</code><span>Seaborn size range.</span></div><div class="param"><code>palette</code><span>Color palette for hue mapping.</span></div></div>
+</section>
+<section id="topic-14" class="topic">
+<h3><span class="topic-number">14</span>Pie chart</h3><p class="lead">Shows part-to-whole composition. Use a small number of slices and consider a bar chart if close values must be compared precisely.</p>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.pie(values, labels=labels,
+    autopct="%1.1f%%", startangle=90,
+    explode=[0, .05, 0],
+    wedgeprops={"edgecolor":"white"})
+plt.axis("equal")</code></pre></div><div class="codebox"><div class="code-head">Seaborn figure-level</div><pre><code># No dedicated figure-level
+# pie chart function.
+# Create a figure and use
+# Matplotlib pie instead.</code></pre></div><div class="codebox"><div class="code-head">Seaborn axes-level</div><pre><code>fig, ax = plt.subplots()
+ax.pie(values, labels=labels,
+    autopct="%1.1f%%",
+    startangle=90)
+ax.set_aspect("equal")</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>autopct</code><span>Format for percentages.</span></div><div class="param"><code>startangle</code><span>Rotate the first slice start.</span></div><div class="param"><code>explode</code><span>Offset selected slices.</span></div><div class="param"><code>wedgeprops</code><span>Style slice borders and width.</span></div><div class="param"><code>pctdistance</code><span>Position percentage labels.</span></div><div class="param"><code>labeldistance</code><span>Position category labels.</span></div></div>
+<div class="callout warn">Pie charts are not part of Seaborn's native chart API. <code>Axes.pie()</code> is a Matplotlib function, even when you use a Seaborn-themed figure.</div>
+</section>
+<section id="topic-15" class="topic">
+<h3><span class="topic-number">15</span>Histogram</h3><p class="lead">Groups numeric observations into intervals (bins) and shows how many observations fall in each interval. Use it to understand distribution shape.</p>
+<div class="visual"><svg viewBox="0 0 640 230" role="img" aria-label="Histogram with most observations in middle bins"><path d="M45 20 V195 H620" fill="none" stroke="#8b98ad"/><g fill="#a5b4fc"><rect x="70" y="165" width="45" height="30"/><rect x="115" y="140" width="45" height="55"/><rect x="160" y="105" width="45" height="90"/><rect x="205" y="62" width="45" height="133"/><rect x="250" y="35" width="45" height="160"/><rect x="295" y="48" width="45" height="147"/><rect x="340" y="88" width="45" height="107"/><rect x="385" y="125" width="45" height="70"/><rect x="430" y="155" width="45" height="40"/><rect x="475" y="175" width="45" height="20"/></g></svg><p class="muted">Unlike a bar chart, the bars represent intervals of a continuous numeric variable. Adjacent bars typically touch.</p></div>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.hist(values, bins=10,
+    density=False, cumulative=False,
+    edgecolor="white", alpha=.85)</code></pre></div><div class="codebox"><div class="code-head">Figure-level · displot</div><pre><code>sns.displot(data=df, x="Age",
+    kind="hist", bins=10,
+    kde=True, hue="Group",
+    height=4, aspect=1.4)</code></pre></div><div class="codebox"><div class="code-head">Axes-level · histplot</div><pre><code>sns.histplot(data=df, x="Age",
+    bins=10, binwidth=5,
+    stat="count", kde=True,
+    hue="Group", ax=ax)</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>bins / binwidth</code><span>Number of bins or bin size.</span></div><div class="param"><code>range / binrange</code><span>Limit the binning region.</span></div><div class="param"><code>density / stat</code><span>Count, probability, density, etc.</span></div><div class="param"><code>cumulative</code><span>Accumulated distribution.</span></div><div class="param"><code>kde</code><span>Overlay a smooth density estimate.</span></div><div class="param"><code>multiple</code><span>Layer, stack, dodge, or fill hue distributions.</span></div></div>
+<div class="callout">Histogram question: “How are numeric values distributed?” Bar-chart question: “How do categories compare?”</div>
+</section>
+<section id="topic-16" class="topic">
+<h3><span class="topic-number">16</span>Box plot</h3><p class="lead">Compact statistical summary of a numeric distribution: median, quartiles, whiskers, and potential outliers.</p>
+<div class="visual"><svg viewBox="0 0 640 210" role="img" aria-label="Box plot showing quartiles, whiskers, and median"><path d="M40 105 H600" stroke="#b0bacb" stroke-width="2"/><path d="M100 105 H220 M420 105 H540" stroke="#5268f4" stroke-width="3"/><path d="M100 82 V128 M540 82 V128" stroke="#5268f4" stroke-width="3"/><rect x="220" y="60" width="200" height="90" fill="#dfe5ff" stroke="#5268f4" stroke-width="3" rx="4"/><path d="M310 60 V150" stroke="#11a9a0" stroke-width="4"/><circle cx="580" cy="105" r="5" fill="#ef8c4a"/><circle cx="590" cy="105" r="5" fill="#ef8c4a"/><g fill="#516078" font-size="13" text-anchor="middle"><text x="100" y="170">Lower whisker</text><text x="220" y="40">Q1</text><text x="310" y="185">Median</text><text x="420" y="40">Q3</text><text x="560" y="170">Outliers</text></g></svg></div>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.boxplot(values,
+    vert=True, patch_artist=True,
+    showmeans=True, showfliers=True,
+    whis=1.5)</code></pre></div><div class="codebox"><div class="code-head">Figure-level · catplot</div><pre><code>sns.catplot(data=df,
+    x="Department", y="Salary",
+    kind="box", hue="Gender",
+    height=4, aspect=1.4)</code></pre></div><div class="codebox"><div class="code-head">Axes-level · boxplot</div><pre><code>sns.boxplot(data=df,
+    x="Department", y="Salary",
+    hue="Gender", showmeans=True,
+    whis=1.5, ax=ax)</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>whis</code><span>Whisker rule, often 1.5× IQR.</span></div><div class="param"><code>showfliers</code><span>Show outlier markers.</span></div><div class="param"><code>showmeans</code><span>Show mean marker.</span></div><div class="param"><code>notch</code><span>Notched median interval in Matplotlib.</span></div><div class="param"><code>order</code><span>Category ordering.</span></div><div class="param"><code>width</code><span>Width of boxes.</span></div></div>
+<p class="muted"><strong>Interpretation:</strong> The box covers the middle 50% (IQR = Q3 − Q1). Whiskers are determined by the whisker rule, not necessarily the absolute minimum and maximum. Points beyond whiskers are potential outliers—not automatically errors.</p>
+</section>
+<section id="topic-17" class="topic">
+<h3><span class="topic-number">17</span>Area chart</h3><p class="lead">Fill the region under a line to emphasize magnitude. Stacked area charts show how multiple components contribute to a total across time.</p>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>plt.fill_between(x, y,
+    color="skyblue", alpha=.35)
+plt.plot(x, y, color="steelblue")
+
+# Stacked area
+plt.stackplot(x, y_a, y_b, y_c,
+    labels=["A", "B", "C"])
+plt.legend()</code></pre></div><div class="codebox"><div class="code-head">Figure-level</div><pre><code># No native area chart API.
+# Make the grid/figure as desired,
+# then use Matplotlib fill functions
+# on its axes.</code></pre></div><div class="codebox"><div class="code-head">Axes-level</div><pre><code>sns.lineplot(data=df,
+    x="Date", y="Sales", ax=ax)
+ax.fill_between(df["Date"],
+    df["Sales"], alpha=.25)
+# Or ax.stackplot(...) for stacks</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>where</code><span>Conditionally fill regions.</span></div><div class="param"><code>alpha</code><span>Transparency.</span></div><div class="param"><code>interpolate</code><span>Interpolate at condition boundaries.</span></div><div class="param"><code>baseline</code><span>Stackplot baseline style.</span></div></div>
+<div class="callout warn">Area charts can obscure overlapping series. Consider a line chart when the goal is comparing separate trends, and stacked area when the total and composition matter.</div>
+</section>
+<section id="topic-18" class="topic">
+<h3><span class="topic-number">18</span>Count plot (frequency plot)</h3><p class="lead">Counts the number of records in each category automatically. It is a categorical frequency chart—not a histogram.</p>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib</div><pre><code>counts = df["Course"].value_counts()
+plt.bar(counts.index,
+    counts.values)</code></pre></div><div class="codebox"><div class="code-head">Figure-level · catplot</div><pre><code>sns.catplot(data=df,
+    x="Course", kind="count",
+    hue="Group", height=4,
+    aspect=1.4)</code></pre></div><div class="codebox"><div class="code-head">Axes-level · countplot</div><pre><code>sns.countplot(data=df,
+    x="Course", hue="Group",
+    order=["Python","SQL","Excel"],
+    ax=ax)</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>x / y</code><span>Category being counted.</span></div><div class="param"><code>hue</code><span>Counts split by a second category.</span></div><div class="param"><code>order</code><span>Control category order.</span></div><div class="param"><code>stat</code><span>Count/proportion/percent modes supported by installed version.</span></div><div class="param"><code>palette</code><span>Color scheme.</span></div><div class="param"><code>dodge</code><span>Separate hue bars side by side.</span></div></div>
+<div class="callout good">Matplotlib workflow: <code>value_counts()</code> first, then plot the counts with <code>plt.bar()</code>. Seaborn <code>countplot()</code> does that counting step for you.</div>
+</section>
+<section id="topic-19" class="topic">
+<h3><span class="topic-number">19</span>Trend line / regression</h3><p class="lead">A fitted line summarizes a relationship. It can reveal an overall direction amid noisy points. Correlation or regression alone does not prove cause and effect.</p>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib + NumPy</div><pre><code>m, b = np.polyfit(x, y, 1)
+trend = m * x + b
+plt.scatter(x, y)
+plt.plot(x, trend, color="red")</code></pre></div><div class="codebox"><div class="code-head">Figure-level · lmplot</div><pre><code>sns.lmplot(data=df,
+    x="Experience", y="Salary",
+    hue="Department", ci=95,
+    order=1)</code></pre></div><div class="codebox"><div class="code-head">Axes-level · regplot</div><pre><code>sns.regplot(data=df,
+    x="Experience", y="Salary",
+    ci=95, order=1,
+    line_kws={"color":"red"}, ax=ax)</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>order</code><span>Polynomial degree for fitted curve.</span></div><div class="param"><code>ci</code><span>Confidence interval; use None to hide.</span></div><div class="param"><code>robust</code><span>Robust regression option in applicable API.</span></div><div class="param"><code>lowess</code><span>Locally weighted smoother.</span></div><div class="param"><code>logistic</code><span>Logistic model option in applicable API.</span></div><div class="param"><code>scatter</code><span>Show or hide observations.</span></div></div>
+<div class="callout warn">Figure-level <code>lmplot()</code> supports grouping/faceting such as <code>hue</code>, <code>col</code>, and <code>row</code>. Axes-level <code>regplot()</code> is designed for a single Axes and does not provide the same faceting interface.</div>
+</section>
+<section id="topic-20" class="topic">
+<h3><span class="topic-number">20</span>Heatmap</h3><p class="lead">Encodes values in a grid using color. Common examples include correlation matrices, pivot tables, cross-tabulations, and confusion matrices.</p>
+<div class="visual"><svg viewBox="0 0 640 230" role="img" aria-label="Heatmap matrix with cells shaded from light to dark"><g transform="translate(155,25)"><rect x="0" y="0" width="70" height="45" fill="#e8eaff"/><rect x="70" y="0" width="70" height="45" fill="#a8b6ff"/><rect x="140" y="0" width="70" height="45" fill="#536bf0"/><rect x="210" y="0" width="70" height="45" fill="#c4cdff"/><rect x="0" y="45" width="70" height="45" fill="#91a2fa"/><rect x="70" y="45" width="70" height="45" fill="#e7eaff"/><rect x="140" y="45" width="70" height="45" fill="#aebcff"/><rect x="210" y="45" width="70" height="45" fill="#405ce0"/><rect x="0" y="90" width="70" height="45" fill="#536bf0"/><rect x="70" y="90" width="70" height="45" fill="#9baeff"/><rect x="140" y="90" width="70" height="45" fill="#e8eaff"/><rect x="210" y="90" width="70" height="45" fill="#a5b4ff"/><rect x="0" y="135" width="70" height="45" fill="#c6ceff"/><rect x="70" y="135" width="70" height="45" fill="#536bf0"/><rect x="140" y="135" width="70" height="45" fill="#9baeff"/><rect x="210" y="135" width="70" height="45" fill="#e8eaff"/><g fill="#33446b" font-size="11" text-anchor="middle"><text x="35" y="195">A</text><text x="105" y="195">B</text><text x="175" y="195">C</text><text x="245" y="195">D</text></g></g></svg><p class="muted">Color intensity represents the value. Read the legend (color bar) to know the scale.</p></div>
+<div class="codegrid"><div class="codebox"><div class="code-head">Matplotlib · imshow</div><pre><code>plt.imshow(matrix,
+    cmap="coolwarm", aspect="auto",
+    vmin=-1, vmax=1)
+plt.colorbar()</code></pre></div><div class="codebox"><div class="code-head">Figure-level</div><pre><code># No dedicated figure-level
+# heatmap function in Seaborn.
+# Use figure/axes setup and then
+# sns.heatmap() on an Axes.</code></pre></div><div class="codebox"><div class="code-head">Axes-level · heatmap</div><pre><code>sns.heatmap(matrix, annot=True,
+    fmt=".2f", cmap="coolwarm",
+    center=0, vmin=-1, vmax=1,
+    linewidths=.5, cbar=True, ax=ax)</code></pre></div></div>
+<div class="paramlist"><div class="param"><code>annot</code><span>Write values in each cell.</span></div><div class="param"><code>fmt</code><span>Number formatting for annotations.</span></div><div class="param"><code>cmap</code><span>Color map.</span></div><div class="param"><code>vmin / vmax / center</code><span>Set color normalization range/center.</span></div><div class="param"><code>mask</code><span>Hide selected cells.</span></div><div class="param"><code>cbar</code><span>Show the color legend.</span></div><div class="param"><code>linewidths / linecolor</code><span>Cell grid lines.</span></div><div class="param"><code>square</code><span>Square cell shape.</span></div></div>
+<div class="callout good">Correlation matrix: <code>corr = df.select_dtypes(include="number").corr()</code>, then plot <code>sns.heatmap(corr, annot=True, cmap="coolwarm", center=0, vmin=-1, vmax=1)</code>. A correlation value near +1 means strong positive linear association, near −1 strong negative association, and near 0 little linear association.</div>
+</section>
+<section id="workflow">
+<div class="section-head"><h2>Recommended learning & workflow</h2><p>Build confidence in this sequence, then combine tools for richer visualizations.</p></div>
+<div class="grid3"><div class="concept-card"><div class="icon">1️⃣</div><h3>Matplotlib basics</h3><p>Figure, Axes, titles, labels, ticks, limits, bar, line, scatter, pie, histogram, text.</p></div><div class="concept-card"><div class="icon">2️⃣</div><h3>Seaborn Axes-level</h3><p>DataFrame plotting, hue/style/size, categorical charts, distribution, regression, heatmap.</p></div><div class="concept-card"><div class="icon">3️⃣</div><h3>Seaborn Figure-level</h3><p>Facet grids, row/col comparisons, height/aspect, multi-variable exploration.</p></div></div>
+<div class="card"><h3>Dashboard composition example</h3><pre><code>fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+sns.barplot(data=df, x="Category", y="Sales", ax=axes[0])
+sns.lineplot(data=monthly_df, x="Month", y="Sales", ax=axes[1])
+
+axes[0].set_title("Sales by Category")
+axes[1].set_title("Sales over Time")
+fig.tight_layout()
+plt.show()</code></pre><p class="muted">Create the layout with Matplotlib, draw statistical plots using Seaborn axes-level functions, and customize the result with Matplotlib.</p></div>
+</section>
+<section id="glossary">
+<div class="section-head"><h2>Mini glossary</h2><p>Common terms you'll see repeatedly while customizing plots.</p></div>
+<div class="table-wrap"><table><thead><tr><th>Term</th><th>Simple explanation</th></tr></thead><tbody><tr><td>Figure</td><td>The entire canvas or graphic container.</td></tr><tr><td>Axes</td><td>The plot area with data, axes, labels, and ticks (not the same as “axis”).</td></tr><tr><td>Axis</td><td>The coordinate dimension, X or Y.</td></tr><tr><td>Facet</td><td>A small-multiple panel for a subset/group of data.</td></tr><tr><td>Estimator</td><td>Function that summarizes observations, e.g. mean or median.</td></tr><tr><td>Confidence interval</td><td>An interval expressing uncertainty around an estimated statistic.</td></tr><tr><td>Hue</td><td>Color encodes a grouping variable.</td></tr><tr><td>Bin</td><td>An interval used to group numeric values in a histogram.</td></tr><tr><td>IQR</td><td>Interquartile range: Q3 − Q1, the middle 50% spread.</td></tr><tr><td>Annotation</td><td>Text, arrows, or labels added to highlight a point or insight.</td></tr><tr><td>Scale</td><td>Rule for mapping data values to distances on an axis.</td></tr><tr><td>Normalization</td><td>Transforming values to a comparable scale, depending on context.</td></tr></tbody></table></div>
+</section>
+<div class="footer">Python Visualization Lab · Learning reference for Matplotlib and Seaborn. Code examples are illustrative; some parameters and defaults can vary by library version. Check your installed version’s documentation for exact behavior.</div>
+</main>
+</div>
+<button class="backtop" id="backtop" aria-label="Back to top">↑ Back to top</button>
+<script>
+// Copy code snippets
+for(const btn of document.querySelectorAll('.code-head')){
+ const code=btn.parentElement.querySelector('pre code');
+ if(!code) continue;
+ const copy=document.createElement('button');copy.className='copy';copy.textContent='Copy';
+ copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(code.innerText);copy.textContent='Copied!';setTimeout(()=>copy.textContent='Copy',1300)}catch(e){copy.textContent='Select code';}});
+ btn.appendChild(copy);
+}
+// Search/filter: hide nonmatching topic sections and TOC entries, while preserving main intro sections
+const search=document.getElementById('search');
+search.addEventListener('input',()=>{
+ const q=search.value.trim().toLowerCase();
+ document.querySelectorAll('.topic').forEach(section=>{
+  section.hidden=q && !section.innerText.toLowerCase().includes(q);
+ });
+ document.querySelectorAll('#navlist a').forEach(a=>{
+  const target=document.querySelector(a.getAttribute('href'));
+  if(!target || !target.classList.contains('topic')){a.hidden=false;return;}
+  a.hidden=!!q && target.hidden;
+ });
+});
+// Active navigation and back-to-top
+const links=[...document.querySelectorAll('#navlist a')];
+const sections=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+const observer=new IntersectionObserver(entries=>{
+ entries.forEach(entry=>{if(entry.isIntersecting){links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+entry.target.id));}});
+},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>observer.observe(s));
+const topBtn=document.getElementById('backtop');
+window.addEventListener('scroll',()=>{topBtn.style.display=window.scrollY>500?'block':'none'});
+topBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+</script>
+</body>
+</html>
